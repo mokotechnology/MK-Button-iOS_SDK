@@ -1,0 +1,6 @@
+framework module Pods_MKBeaconXButton_Example {
+  umbrella header "Pods-MKBeaconXButton_Example-umbrella.h"
+
+  export *
+  module * { export * }
+}
