@@ -23,6 +23,8 @@
 NSString *const mk_bxb_peripheralConnectStateChangedNotification = @"mk_bxb_peripheralConnectStateChangedNotification";
 NSString *const mk_bxb_centralManagerStateChangedNotification = @"mk_bxb_centralManagerStateChangedNotification";
 
+NSString *const mk_bxb_deviceDisconnectTypeNotification = @"mk_bxb_deviceDisconnectTypeNotification";
+
 static MKBXBCentralManager *manager = nil;
 static dispatch_once_t onceToken;
 
@@ -180,11 +182,37 @@ static dispatch_once_t onceToken;
         return;
     }
     if (!MKValidStr(password) || password.length > 16 || ![MKBLEBaseSDKAdopter asciiString:password]) {
-        [self operationFailedBlockWithMsg:@"The password should be 8 characters." failedBlock:failedBlock];
+        [self operationFailedBlockWithMsg:@"The password should be no more than 16 characters." failedBlock:failedBlock];
         return;
     }
     self.password = @"";
     self.password = password;
+    __weak typeof(self) weakSelf = self;
+    [self connectPeripheral:peripheral successBlock:^(CBPeripheral *peripheral) {
+        __strong typeof(self) sself = weakSelf;
+        sself.sucBlock = nil;
+        sself.failedBlock = nil;
+        if (sucBlock) {
+            sucBlock(peripheral);
+        }
+    } failedBlock:^(NSError *error) {
+        __strong typeof(self) sself = weakSelf;
+        sself.sucBlock = nil;
+        sself.failedBlock = nil;
+        if (failedBlock) {
+            failedBlock(error);
+        }
+    }];
+}
+
+- (void)connectPeripheral:(nonnull CBPeripheral *)peripheral
+                 sucBlock:(void (^)(CBPeripheral *peripheral))sucBlock
+              failedBlock:(void (^)(NSError *error))failedBlock {
+    if (!peripheral) {
+        [MKBLEBaseSDKAdopter operationConnectFailedBlock:failedBlock];
+        return;
+    }
+    self.password = @"";
     __weak typeof(self) weakSelf = self;
     [self connectPeripheral:peripheral successBlock:^(CBPeripheral *peripheral) {
         __strong typeof(self) sself = weakSelf;
@@ -247,7 +275,19 @@ static dispatch_once_t onceToken;
     self.failedBlock = failedBlock;
     MKBXBPeripheral *bxbPeripheral = [[MKBXBPeripheral alloc] initWithPeripheral:peripheral];
     [[MKBLEBaseCentralManager shared] connectDevice:bxbPeripheral sucBlock:^(CBPeripheral * _Nonnull peripheral) {
-        [self sendPasswordToDevice];
+        if (MKValidStr(self.password) && self.password.length <= 16) {
+            //需要密码登录
+            [self sendPasswordToDevice];
+            return;
+        }
+        //免密登录
+        MKBLEBase_main_safe(^{
+            self.connectStatus = mk_bxb_centralConnectStatusConnected;
+            [[NSNotificationCenter defaultCenter] postNotificationName:mk_bxb_peripheralConnectStateChangedNotification object:nil];
+            if (self.sucBlock) {
+                self.sucBlock(peripheral);
+            }
+        });
     } failedBlock:failedBlock];
 }
 

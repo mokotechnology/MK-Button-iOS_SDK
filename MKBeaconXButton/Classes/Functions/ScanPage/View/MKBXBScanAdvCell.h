@@ -19,8 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy)NSString *triggerCount;
 
-@property (nonatomic, copy)NSString *deviceID;
-
 @end
 
 @interface MKBXBScanAdvCell : MKBaseCell

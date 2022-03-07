@@ -119,6 +119,7 @@
         _msgLabel.textColor = DEFAULT_TEXT_COLOR;
         _msgLabel.font = MKFont(15.f);
         _msgLabel.textAlignment = NSTextAlignmentLeft;
+        _msgLabel.text = @"Device info";
     }
     return _msgLabel;
 }

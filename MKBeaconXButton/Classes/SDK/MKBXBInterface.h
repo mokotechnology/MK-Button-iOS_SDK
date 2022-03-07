@@ -206,6 +206,19 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)bxb_readDeviceTimeWithSucBlock:(void (^)(id returnData))sucBlock
                            failedBlock:(void (^)(NSError *error))failedBlock;
 
+/// Read sensor status.
+/*
+ @{
+     @"threeAxis":@(YES),           //Whether the device has a 3-axis accelerometer.
+     @"htSensor":@(YES),            //Whether the device has a temperature and humidity sensor.
+     @"lightSensor":@(YES)          //Whether the device has a light sensor.
+ };
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readSensorStatusWithSucBlock:(void (^)(id returnData))sucBlock
+                             failedBlock:(void (^)(NSError *error))failedBlock;
+
 /// Read the device' ID.
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback

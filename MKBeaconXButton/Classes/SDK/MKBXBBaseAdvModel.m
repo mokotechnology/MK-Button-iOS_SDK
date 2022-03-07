@@ -81,6 +81,7 @@
         self.trigger = [[content substringWithRange:NSMakeRange(2, 2)] isEqualToString:@"01"];
         self.triggerCount = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(4, 4)];
         self.deviceID = [content substringFromIndex:8];
+        self.needPassword = YES;
     }
     return self;
 }
@@ -111,10 +112,10 @@
             NSInteger tempLow = [MKBLEBaseSDKAdopter getDecimalWithHex:temperature range:NSMakeRange(2, 2)];
             self.beaconTemperature = [NSString stringWithFormat:@"%ld.%.2f",(long)[tempHight integerValue],(tempLow / 256.f)];
         }
-        NSNumber *tempRssi = [MKBLEBaseSDKAdopter signedHexTurnString:[content substringWithRange:NSMakeRange(22, 2)]];
+        NSNumber *tempRssi = [MKBLEBaseSDKAdopter signedHexTurnString:[content substringWithRange:NSMakeRange(24, 2)]];
         self.rangingData = [NSString stringWithFormat:@"%ld",(long)[tempRssi integerValue]];
-        self.voltage = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(24, 4)];
-        NSString *tempMac = [[content substringWithRange:NSMakeRange(28, 12)] uppercaseString];
+        self.voltage = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(26, 4)];
+        NSString *tempMac = [[content substringWithRange:NSMakeRange(30, 12)] uppercaseString];
         NSString *macAddress = [NSString stringWithFormat:@"%@:%@:%@:%@:%@:%@",
         [tempMac substringWithRange:NSMakeRange(0, 2)],
         [tempMac substringWithRange:NSMakeRange(2, 2)],
@@ -123,6 +124,7 @@
         [tempMac substringWithRange:NSMakeRange(8, 2)],
         [tempMac substringWithRange:NSMakeRange(10, 2)]];
         self.macAddress = macAddress;
+        self.needPassword = YES;
     }
     return self;
 }

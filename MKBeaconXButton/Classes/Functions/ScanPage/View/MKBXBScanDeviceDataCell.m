@@ -59,6 +59,8 @@ static CGFloat const batteryIconHeight = 25.f;
  */
 @property (nonatomic, strong)UILabel *macLabel;
 
+@property (nonatomic, strong)UILabel *devieIDLabel;
+
 @property (nonatomic, strong)UILabel *txPowerLabel;
 
 @property (nonatomic, strong)UILabel *txPowerValueLabel;
@@ -96,9 +98,10 @@ static CGFloat const batteryIconHeight = 25.f;
         [self.topBackView addSubview:self.rssiLabel];
         [self.topBackView addSubview:self.nameLabel];
         [self.topBackView addSubview:self.connectButton];
+        [self.topBackView addSubview:self.macLabel];
         
+        [self.bottomBackView addSubview:self.devieIDLabel];
         [self.centerBackView addSubview:self.batteryIcon];
-        [self.centerBackView addSubview:self.macLabel];
         
         [self.bottomBackView addSubview:self.batteryLabel];
         [self.bottomBackView addSubview:self.txPowerLabel];
@@ -149,6 +152,12 @@ static CGFloat const batteryIconHeight = 25.f;
         make.centerY.mas_equalTo(self.topBackView.mas_centerY);
         make.height.mas_equalTo(connectButtonHeight);
     }];
+    [self.macLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.nameLabel.mas_left);
+        make.right.mas_equalTo(self.connectButton.mas_left).mas_offset(-5.f);
+        make.top.mas_equalTo(self.nameLabel.mas_bottom).mas_offset(3.f);
+        make.height.mas_equalTo(MKFont(13.f).lineHeight);
+    }];
     [self.centerBackView mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(0);
         make.right.mas_equalTo(0);
@@ -161,16 +170,16 @@ static CGFloat const batteryIconHeight = 25.f;
         make.centerY.mas_equalTo(self.centerBackView.mas_centerY);
         make.height.mas_equalTo(batteryIconHeight);
     }];
-    [self.macLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
+    [self.devieIDLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.nameLabel.mas_left);
         make.right.mas_equalTo(self.timeLabel.mas_left).mas_offset(-5.f);
-        make.centerY.mas_equalTo(self.centerBackView.mas_centerY);
-        make.height.mas_equalTo(MKFont(13.f).lineHeight);
+        make.centerY.mas_equalTo(self.batteryIcon.mas_centerY);
+        make.height.mas_equalTo(MKFont(12.f).lineHeight);
     }];
     [self.timeLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.right.mas_equalTo(-15.f);
         make.width.mas_equalTo(70.f);
-        make.centerY.mas_equalTo(self.macLabel.mas_centerY);
+        make.centerY.mas_equalTo(self.devieIDLabel.mas_centerY);
         make.height.mas_equalTo(MKFont(10.f).lineHeight);
     }];
     
@@ -213,7 +222,7 @@ static CGFloat const batteryIconHeight = 25.f;
         return;
     }
     if ([self.delegate respondsToSelector:@selector(mk_bxb_connectPeripheral:)]) {
-        [self.delegate mk_bxb_connectPeripheral:self.dataModel.peripheral];
+        [self.delegate mk_bxb_connectPeripheral:self.dataModel];
     }
 }
 
@@ -234,6 +243,9 @@ static CGFloat const batteryIconHeight = 25.f;
     NSString *macAddress = (ValidStr(_dataModel.macAddress) ? _dataModel.macAddress : @"N/A");
     self.macLabel.text = [NSString stringWithFormat:@"MAC:%@",macAddress];
     self.batteryLabel.text = (ValidStr(_dataModel.battery) ? [_dataModel.battery stringByAppendingString:@"mV"] : @"N/A");
+    if (ValidStr(_dataModel.deviceID)) {
+        self.devieIDLabel.text = [@"Device ID: " stringByAppendingString:_dataModel.deviceID];
+    }
     [self setNeedsLayout];
 }
 
@@ -298,6 +310,13 @@ static CGFloat const batteryIconHeight = 25.f;
         _macLabel = [self createLabelWithFont:MKFont(13)];
     }
     return _macLabel;
+}
+
+- (UILabel *)devieIDLabel {
+    if (!_devieIDLabel) {
+        _devieIDLabel = [self createLabelWithFont:MKFont(12.f)];
+    }
+    return _devieIDLabel;
 }
 
 - (UILabel *)txPowerLabel {

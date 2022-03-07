@@ -20,6 +20,8 @@
 #import "MKSettingTextCell.h"
 #import "MKTextFieldCell.h"
 
+#import "MKBXBConnectManager.h"
+
 #import "MKBXBSettingPageModel.h"
 
 #import "MKBXBAlarmEventController.h"
@@ -37,6 +39,8 @@ MKTextFieldCellDelegate>
 @property (nonatomic, strong)NSMutableArray *section0List;
 
 @property (nonatomic, strong)NSMutableArray *section1List;
+
+@property (nonatomic, strong)NSMutableArray *section2List;
 
 @property (nonatomic, strong)MKBXBSettingPageModel *dataModel;
 
@@ -94,13 +98,13 @@ MKTextFieldCellDelegate>
         [self.navigationController pushViewController:vc animated:YES];
         return;
     }
-    if (indexPath.section == 0 && indexPath.row == 3) {
+    if (indexPath.section == 1 && indexPath.row == 0) {
         //3-axis accelerometer
         MKBXBAccelerationController *vc = [[MKBXBAccelerationController alloc] init];
         [self.navigationController pushViewController:vc animated:YES];
         return;
     }
-    if (indexPath.section == 0 && indexPath.row == 4) {
+    if (indexPath.section == 1 && indexPath.row == 1) {
         //Power saving configuration
         MKBXBPowerSaveController *vc = [[MKBXBPowerSaveController alloc] init];
         [self.navigationController pushViewController:vc animated:YES];
@@ -110,7 +114,7 @@ MKTextFieldCellDelegate>
 
 #pragma mark - UITableViewDataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 2;
+    return 3;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -118,7 +122,10 @@ MKTextFieldCellDelegate>
         return self.section0List.count;
     }
     if (section == 1) {
-        return self.section1List.count;
+        return ([MKBXBConnectManager shared].threeSensor ? self.section1List.count : 0);
+    }
+    if (section == 2) {
+        return self.section2List.count;
     }
     return 0;
 }
@@ -129,8 +136,13 @@ MKTextFieldCellDelegate>
         cell.dataModel = self.section0List[indexPath.row];
         return cell;
     }
+    if (indexPath.section == 1) {
+        MKSettingTextCell *cell = [MKSettingTextCell initCellWithTableView:tableView];
+        cell.dataModel = self.section1List[indexPath.row];
+        return cell;
+    }
     MKTextFieldCell *cell = [MKTextFieldCell initCellWithTableView:tableView];
-    cell.dataModel = self.section1List[indexPath.row];
+    cell.dataModel = self.section2List[indexPath.row];
     cell.delegate = self;
     return cell;
 }
@@ -143,7 +155,7 @@ MKTextFieldCellDelegate>
     if (index == 0) {
         //Effective click interval
         self.dataModel.clickInterval = value;
-        MKTextFieldCellModel *cellModel = self.section1List[0];
+        MKTextFieldCellModel *cellModel = self.section2List[0];
         cellModel.textFieldValue = value;
         return;
     }
@@ -170,7 +182,7 @@ MKTextFieldCellDelegate>
     [self.dataModel readDataWithSucBlock:^{
         @strongify(self);
         [[MKHudManager share] hide];
-        MKTextFieldCellModel *cellModel = self.section1List[0];
+        MKTextFieldCellModel *cellModel = self.section2List[0];
         cellModel.textFieldValue = self.dataModel.clickInterval;
         [self.tableView reloadData];
     } failedBlock:^(NSError * _Nonnull error) {
@@ -184,6 +196,7 @@ MKTextFieldCellDelegate>
 - (void)loadSectionDatas {
     [self loadSection0Datas];
     [self loadSection1Datas];
+    [self loadSection2Datas];
     
     [self.tableView reloadData];
 }
@@ -200,17 +213,19 @@ MKTextFieldCellDelegate>
     MKSettingTextCellModel *cellModel3 = [[MKSettingTextCellModel alloc] init];
     cellModel3.leftMsg = @"Remote reminder";
     [self.section0List addObject:cellModel3];
-    
-    MKSettingTextCellModel *cellModel4 = [[MKSettingTextCellModel alloc] init];
-    cellModel4.leftMsg = @"3-axis accelerometer";
-    [self.section0List addObject:cellModel4];
-    
-    MKSettingTextCellModel *cellModel5 = [[MKSettingTextCellModel alloc] init];
-    cellModel5.leftMsg = @"Power saving configuration";
-    [self.section0List addObject:cellModel5];
 }
 
 - (void)loadSection1Datas {
+    MKSettingTextCellModel *cellModel1 = [[MKSettingTextCellModel alloc] init];
+    cellModel1.leftMsg = @"3-axis accelerometer";
+    [self.section1List addObject:cellModel1];
+
+    MKSettingTextCellModel *cellModel2 = [[MKSettingTextCellModel alloc] init];
+    cellModel2.leftMsg = @"Power saving configuration";
+    [self.section1List addObject:cellModel2];
+}
+
+- (void)loadSection2Datas {
     MKTextFieldCellModel *cellModel = [[MKTextFieldCellModel alloc] init];
     cellModel.index = 0;
     cellModel.msg = @"Effective click interval";
@@ -218,7 +233,7 @@ MKTextFieldCellDelegate>
     cellModel.textFieldType = mk_realNumberOnly;
     cellModel.maxLength = 2;
     cellModel.unit = @"x100ms";
-    [self.section1List addObject:cellModel];
+    [self.section2List addObject:cellModel];
 }
 
 #pragma mark - UI
@@ -256,6 +271,13 @@ MKTextFieldCellDelegate>
         _section1List = [NSMutableArray array];
     }
     return _section1List;
+}
+
+- (NSMutableArray *)section2List {
+    if (!_section2List) {
+        _section2List = [NSMutableArray array];
+    }
+    return _section2List;
 }
 
 - (MKBXBSettingPageModel *)dataModel {

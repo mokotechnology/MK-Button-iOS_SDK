@@ -37,6 +37,14 @@ NS_ASSUME_NONNULL_BEGIN
                                 sucBlock:(void (^)(void))sucBlock
                              failedBlock:(void (^)(NSError *error))failedBlock;
 
+/// Scan response packet.
+/// @param isOn isOn
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configScanResponsePacket:(BOOL)isOn
+                            sucBlock:(void (^)(void))sucBlock
+                         failedBlock:(void (^)(NSError *error))failedBlock;
+
 /// Activate the channel type that triggers the alarm function.
 /// @param alarmType alarmType
 /// @param sucBlock Success callback

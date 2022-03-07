@@ -54,6 +54,16 @@
                    failedBlock:failedBlock];
 }
 
++ (void)bxb_configScanResponsePacket:(BOOL)isOn
+                            sucBlock:(void (^)(void))sucBlock
+                         failedBlock:(void (^)(NSError *error))failedBlock {
+    NSString *commandString = (isOn ? @"ea3f000101" : @"ea3f000100");
+    [self configDataWithTaskID:mk_bxb_taskConfigScanResponsePacketOperation
+                          data:commandString
+                      sucBlock:sucBlock
+                   failedBlock:failedBlock];
+}
+
 + (void)bxb_configActiveChannel:(MKBXBChannelAlarmType)alarmType
                        sucBlock:(void (^)(void))sucBlock
                     failedBlock:(void (^)(NSError *error))failedBlock {

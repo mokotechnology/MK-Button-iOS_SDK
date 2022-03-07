@@ -23,6 +23,11 @@ extern NSString *const mk_bxb_peripheralConnectStateChangedNotification;
 //Notification of changes in the status of the Bluetooth Center.
 extern NSString *const mk_bxb_centralManagerStateChangedNotification;
 
+/*
+ After connecting the device, if no password is entered within one minute, it returns 0x01. After successful password change, it returns 0x02.The device has no data communication for three consecutive minutes, it returns 0x03.The device restart ,it returns 0x04.
+ */
+extern NSString *const mk_bxb_deviceDisconnectTypeNotification;
+
 typedef NS_ENUM(NSInteger, mk_bxb_centralManagerStatus) {
     mk_bxb_centralManagerStatusUnable,                           //不可用
     mk_bxb_centralManagerStatusEnable,                           //可用状态
@@ -88,6 +93,14 @@ typedef NS_ENUM(NSInteger, mk_bxb_centralConnectStatus) {
 /// @param failedBlock Failure callback
 - (void)connectPeripheral:(nonnull CBPeripheral *)peripheral
                  password:(nonnull NSString *)password
+                 sucBlock:(void (^)(CBPeripheral *peripheral))sucBlock
+              failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Connect device function.
+/// @param peripheral peripheral
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
+- (void)connectPeripheral:(nonnull CBPeripheral *)peripheral
                  sucBlock:(void (^)(CBPeripheral *peripheral))sucBlock
               failedBlock:(void (^)(NSError *error))failedBlock;
 

@@ -24,6 +24,7 @@ typedef NS_ENUM(NSInteger, mk_bxb_taskOperationID) {
     mk_bxb_taskReadDismissAlarmNotificationTypeOperation,   //读取消警提醒模式
     mk_bxb_taskReadBatteryVoltageOperation,             //读取电池电压
     mk_bxb_taskReadDeviceTimeOperation,                 //读取设备时间
+    mk_bxb_taskReadSensorStatusOperation,               //读取传感器状态
     mk_bxb_taskReadDeviceIDOperation,                   //读取deviceID
     mk_bxb_taskReadDeviceNameOperation,                 //读取设备名称
     mk_bxb_taskReadSinglePressEventCountOperation,      //读取单击触发次数
@@ -33,6 +34,7 @@ typedef NS_ENUM(NSInteger, mk_bxb_taskOperationID) {
 #pragma mark - custom write
     mk_bxb_taskConfigThreeAxisDataParamsOperation,      //设置3轴传感器参数
     mk_bxb_taskConfigEffectiveClickIntervalOperation,   //设置连续按键有效时长
+    mk_bxb_taskConfigScanResponsePacketOperation,       //设置回应包开关
     mk_bxb_taskConfigActiveChannelOperation,            //设置活跃通道
     mk_bxb_taskConfigTriggerChannelAdvParamsOperation,  //设置活跃通道广播参数
     mk_bxb_taskConfigChannelTriggerParamsOperation,     //设置活跃通道触发广播参数

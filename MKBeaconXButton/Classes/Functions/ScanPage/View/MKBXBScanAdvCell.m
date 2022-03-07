@@ -29,10 +29,6 @@
 
 @property (nonatomic, strong)UILabel *triggerCountValueLabel;
 
-@property (nonatomic, strong)UILabel *deviceIDLabel;
-
-@property (nonatomic, strong)UILabel *deviceIDValueLabel;
-
 @end
 
 @implementation MKBXBScanAdvCell
@@ -53,8 +49,6 @@
         [self.contentView addSubview:self.triggerStatusValueLabel];
         [self.contentView addSubview:self.triggerCountLabel];
         [self.contentView addSubview:self.triggerCountValueLabel];
-        [self.contentView addSubview:self.deviceIDLabel];
-        [self.contentView addSubview:self.deviceIDValueLabel];
     }
     return self;
 }
@@ -97,18 +91,6 @@
         make.centerY.mas_equalTo(self.triggerCountLabel.mas_centerY);
         make.height.mas_equalTo(MKFont(12.f).lineHeight);
     }];
-    [self.deviceIDLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(self.msgLabel.mas_left);
-        make.right.mas_equalTo(self.contentView.mas_centerX).mas_offset(-5.f);
-        make.top.mas_equalTo(self.triggerCountValueLabel.mas_bottom).mas_offset(5.f);
-        make.height.mas_equalTo(MKFont(12.f).lineHeight);
-    }];
-    [self.deviceIDValueLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(self.contentView.mas_centerX).mas_offset(5.f);
-        make.right.mas_equalTo(-10.f);
-        make.centerY.mas_equalTo(self.deviceIDLabel.mas_centerY);
-        make.height.mas_equalTo(MKFont(12.f).lineHeight);
-    }];
 }
 
 #pragma mark - setter
@@ -129,7 +111,8 @@
     }
     self.triggerStatusValueLabel.text = (_dataModel.triggerStatus ? @"Triggered" : @"Standby");
     self.triggerCountValueLabel.text = SafeStr(_dataModel.triggerCount);
-    self.deviceIDValueLabel.text = SafeStr(_dataModel.deviceID);
+    self.triggerCountValueLabel.hidden = (_dataModel.alarmMode == 3);
+    self.triggerCountLabel.hidden = (_dataModel.alarmMode == 3);
 }
 
 #pragma mark - getter
@@ -179,21 +162,6 @@
         _triggerCountValueLabel = [self createLabel];
     }
     return _triggerCountValueLabel;
-}
-
-- (UILabel *)deviceIDLabel {
-    if (!_deviceIDLabel) {
-        _deviceIDLabel = [self createLabel];
-        _deviceIDLabel.text = @"Device ID";
-    }
-    return _deviceIDLabel;
-}
-
-- (UILabel *)deviceIDValueLabel {
-    if (!_deviceIDValueLabel) {
-        _deviceIDValueLabel = [self createLabel];
-    }
-    return _deviceIDValueLabel;
 }
 
 - (UILabel *)createLabel {

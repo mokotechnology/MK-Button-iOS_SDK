@@ -74,6 +74,12 @@ MKBXQuickSwitchCellDelegate>
 
 #pragma mark - MKBXQuickSwitchCellDelegate
 - (void)mk_bx_quickSwitchStatusChanged:(BOOL)isOn index:(NSInteger)index {
+    if (index == 4) {
+        //回应包开关
+        [self configScanPacket:isOn];
+        return;
+    }
+    /*
     if (index == 0) {
         //可连接性
         [self configConnectEnable:isOn];
@@ -98,9 +104,23 @@ MKBXQuickSwitchCellDelegate>
         //设置LED触发
         [self configTriggerLEDNotification:isOn];
         return;
-    }
+    }*/
+}
+- (void)configScanPacket:(BOOL)isOn {
+    [MKBXBInterface bxb_configScanResponsePacket:isOn sucBlock:^ {
+        [[MKHudManager share] hide];
+        self.dataModel.scanPacket = isOn;
+        MKBXQuickSwitchCellModel *cellModel = self.dataList[4];
+        cellModel.isOn = isOn;
+        [self.view showCentralToast:@"Success!"];
+    } failedBlock:^(NSError *error) {
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
+        [self.collectionView reloadData];
+    }];
 }
 
+/*
 #pragma mark - 设置参数部分
 
 #pragma mark - 设置可连接状态
@@ -289,7 +309,7 @@ MKBXQuickSwitchCellDelegate>
         [self.collectionView reloadData];
     }];
 }
-
+*/
 #pragma mark - 读取数据
 - (void)readDataFromDevice {
     [[MKHudManager share] showHUDWithTitle:@"Reading..." inView:self.view isPenetration:NO];
@@ -325,21 +345,23 @@ MKBXQuickSwitchCellDelegate>
     cellModel3.isOn = self.dataModel.passwordVerification;
     [self.dataList addObject:cellModel3];
     
-    if (self.dataModel.supportResetByButton) {
-        MKBXQuickSwitchCellModel *cellModel4 = [[MKBXQuickSwitchCellModel alloc] init];
-        cellModel4.index = 3;
-        cellModel4.titleMsg = @"Reset Beacon by button";
-        cellModel4.isOn = self.dataModel.resetByButton;
-        [self.dataList addObject:cellModel4];
-    }
+    MKBXQuickSwitchCellModel *cellModel4 = [[MKBXQuickSwitchCellModel alloc] init];
+    cellModel4.index = 3;
+    cellModel4.titleMsg = @"Reset Beacon by button";
+    cellModel4.isOn = self.dataModel.resetByButton;
+    [self.dataList addObject:cellModel4];
     
-    if (self.dataModel.supportLED) {
-        MKBXQuickSwitchCellModel *cellModel5 = [[MKBXQuickSwitchCellModel alloc] init];
-        cellModel5.index = 4;
-        cellModel5.titleMsg = @"Trigger LED indicator";
-        cellModel5.isOn = self.dataModel.triggerLED;
-        [self.dataList addObject:cellModel5];
-    }
+    MKBXQuickSwitchCellModel *cellModel5 = [[MKBXQuickSwitchCellModel alloc] init];
+    cellModel5.index = 4;
+    cellModel5.titleMsg = @"Scan response packet";
+    cellModel5.isOn = self.dataModel.scanPacket;
+    [self.dataList addObject:cellModel5];
+    
+    MKBXQuickSwitchCellModel *cellModel6 = [[MKBXQuickSwitchCellModel alloc] init];
+    cellModel6.index = 5;
+    cellModel6.titleMsg = @"Dismiss alarm by button";
+    cellModel6.isOn = self.dataModel.scanPacket;
+    [self.dataList addObject:cellModel6];
         
     [self.collectionView reloadData];
 }

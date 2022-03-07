@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy)NSString *macAddress;
 
+@property (nonatomic, copy)NSString *deviceID;
+
 /// 用于记录本次扫到该设备距离上次扫到该设备的时间差，单位ms.
 @property (nonatomic, copy)NSString *displayTime;
 
@@ -44,6 +46,9 @@ NS_ASSUME_NONNULL_BEGIN
  上一次扫描到的时间
  */
 @property (nonatomic, assign)NSTimeInterval lastScanDate;
+
+/// 是否需要密码连接
+@property (nonatomic, assign)BOOL needPassword;
 
 @end
 

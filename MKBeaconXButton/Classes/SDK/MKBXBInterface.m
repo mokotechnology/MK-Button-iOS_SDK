@@ -181,6 +181,14 @@
                  failedBlock:failedBlock];
 }
 
++ (void)bxb_readSensorStatusWithSucBlock:(void (^)(id returnData))sucBlock
+                             failedBlock:(void (^)(NSError *error))failedBlock {
+    [self readDataWithTaskID:mk_bxb_taskReadSensorStatusOperation
+                     cmdFlag:@"6f"
+                    sucBlock:sucBlock
+                 failedBlock:failedBlock];
+}
+
 + (void)bxb_readDeviceIDWithSucBlock:(void (^)(id returnData))sucBlock
                          failedBlock:(void (^)(NSError *error))failedBlock {
     [self readDataWithTaskID:mk_bxb_taskReadDeviceIDOperation

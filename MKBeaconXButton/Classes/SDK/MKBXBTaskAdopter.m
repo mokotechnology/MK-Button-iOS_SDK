@@ -108,6 +108,10 @@
         //设置连续按键有效时长
         operationID = mk_bxb_taskConfigEffectiveClickIntervalOperation;
         resultDic = @{@"success":@(YES)};
+    }else if ([cmd isEqualToString:@"3f"]) {
+        //设置回应包开关
+        operationID = mk_bxb_taskConfigScanResponsePacketOperation;
+        resultDic = @{@"success":@(YES)};
     }else if ([cmd isEqualToString:@"42"]) {
         //读取各通道广播使能情况
         operationID = mk_bxb_taskReadTriggerChannelStateOperation;
@@ -245,6 +249,18 @@
         operationID = mk_bxb_taskReadDeviceTimeOperation;
         NSString *timestamp = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(0, content.length)];
         resultDic = @{@"timestamp":timestamp};
+    }else if ([cmd isEqualToString:@"6f"]) {
+        //读取传感器状态
+        operationID = mk_bxb_taskReadSensorStatusOperation;
+        NSString *bit = [MKBLEBaseSDKAdopter binaryByhex:content];
+        BOOL threeAxis = [[bit substringWithRange:NSMakeRange(7, 1)] isEqualToString:@"1"];
+        BOOL htSensor = [[bit substringWithRange:NSMakeRange(6, 1)] isEqualToString:@"1"];
+        BOOL lightSensor = [[bit substringWithRange:NSMakeRange(6, 1)] isEqualToString:@"1"];
+        resultDic = @{
+            @"threeAxis":@(threeAxis),
+            @"htSensor":@(htSensor),
+            @"lightSensor":@(lightSensor)
+        };
     }else if ([cmd isEqualToString:@"73"]) {
         //设置远程LED消警参数
         operationID = mk_bxb_taskConfigDismissAlarmLEDNotiParamsOperation;

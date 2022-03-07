@@ -14,17 +14,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign)BOOL connectable;
 
-@property (nonatomic, assign)BOOL supportLED;
-
-@property (nonatomic, assign)BOOL triggerLED;
-
 @property (nonatomic, assign)BOOL turnOffByButton;
 
-@property (nonatomic, assign)BOOL supportResetByButton;
+@property (nonatomic, assign)BOOL passwordVerification;
 
 @property (nonatomic, assign)BOOL resetByButton;
 
-@property (nonatomic, assign)BOOL passwordVerification;
+@property (nonatomic, assign)BOOL scanPacket;
+
+@property (nonatomic, assign)BOOL dismiss;
+
 
 - (void)readWithSucBlock:(void (^)(void))sucBlock failedBlock:(void (^)(NSError *error))failedBlock;
 

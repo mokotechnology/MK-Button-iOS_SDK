@@ -80,7 +80,6 @@ static const char *frameTypeKey = "frameTypeKey";
         cellModel.alarmMode = tempModel.alarmType;
         cellModel.triggerStatus = tempModel.trigger;
         cellModel.triggerCount = tempModel.triggerCount;
-        cellModel.deviceID = tempModel.deviceID;
         
         return cellModel;
     }
@@ -107,6 +106,7 @@ static const char *frameTypeKey = "frameTypeKey";
     deviceModel.lastScanDate = [[NSDate date] timeIntervalSince1970] * 1000;
     deviceModel.connectEnable = advData.connectEnable;
     deviceModel.peripheral = advData.peripheral;
+    deviceModel.needPassword = advData.needPassword;
     NSInteger frameType = 0;
     if ([advData isKindOfClass:MKBXBAdvRespondDataModel.class]) {
         //如果是回应包
@@ -119,6 +119,7 @@ static const char *frameTypeKey = "frameTypeKey";
         MKBXBAdvDataModel *tempDataModel = (MKBXBAdvDataModel *)advData;
         deviceModel.deviceName = SafeStr(tempDataModel.deviceName);
         frameType = tempDataModel.alarmType;
+        deviceModel.deviceID = tempDataModel.deviceID;
     }
     NSObject *obj = [self parseAdvDatas:advData];
     if (!obj) {
@@ -135,6 +136,7 @@ static const char *frameTypeKey = "frameTypeKey";
     exsitModel.connectEnable = advData.connectEnable;
     exsitModel.peripheral = advData.peripheral;
     exsitModel.rssi = [NSString stringWithFormat:@"%ld",(long)[advData.rssi integerValue]];
+    exsitModel.needPassword = advData.needPassword;
     if (exsitModel.lastScanDate > 0) {
         NSTimeInterval space = [[NSDate date] timeIntervalSince1970] * 1000 - exsitModel.lastScanDate;
         if (space > 10) {
@@ -154,6 +156,7 @@ static const char *frameTypeKey = "frameTypeKey";
         MKBXBAdvDataModel *tempDataModel = (MKBXBAdvDataModel *)advData;
         exsitModel.deviceName = SafeStr(tempDataModel.deviceName);
         frameType = tempDataModel.alarmType;
+        exsitModel.deviceID = tempDataModel.deviceID;
     }
     NSObject *tempModel = [self parseAdvDatas:advData];
     if (!tempModel) {

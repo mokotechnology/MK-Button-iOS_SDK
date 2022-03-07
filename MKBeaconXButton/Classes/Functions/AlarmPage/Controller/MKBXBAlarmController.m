@@ -17,6 +17,8 @@
 #import "MKHudManager.h"
 #import "MKNormalTextCell.h"
 
+#import "MKBXBConnectManager.h"
+
 #import "MKBXBAlarmPageModel.h"
 
 #import "MKBXBAlarmModeConfigController.h"
@@ -25,7 +27,9 @@
 
 @property (nonatomic, strong)MKBaseTableView *tableView;
 
-@property (nonatomic, strong)NSMutableArray *dataList;
+@property (nonatomic, strong)NSMutableArray *section0List;
+
+@property (nonatomic, strong)NSMutableArray *section1List;
 
 @property (nonatomic, strong)MKBXBAlarmPageModel *dataModel;
 
@@ -65,13 +69,27 @@
 }
 
 #pragma mark - UITableViewDataSource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 2;
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.dataList.count;
+    if (section == 0) {
+        return self.section0List.count;
+    }
+    if (section == 1) {
+        return ([MKBXBConnectManager shared].threeSensor ? self.section1List.count : 0);
+    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        MKNormalTextCell *cell = [MKNormalTextCell initCellWithTableView:tableView];
+        cell.dataModel = self.section0List[indexPath.row];
+        return cell;
+    }
     MKNormalTextCell *cell = [MKNormalTextCell initCellWithTableView:tableView];
-    cell.dataModel = self.dataList[indexPath.row];
+    cell.dataModel = self.section1List[indexPath.row];
     return cell;
 }
 
@@ -91,16 +109,16 @@
 }
 
 - (void)updateCellValue {
-    MKNormalTextCellModel *cellModel1 = self.dataList[0];
+    MKNormalTextCellModel *cellModel1 = self.section0List[0];
     cellModel1.rightMsg = (self.dataModel.singleIsOn ? @"ON" : @"OFF");
     
-    MKNormalTextCellModel *cellModel2 = self.dataList[1];
+    MKNormalTextCellModel *cellModel2 = self.section0List[1];
     cellModel2.rightMsg = (self.dataModel.doubleIsOn ? @"ON" : @"OFF");
     
-    MKNormalTextCellModel *cellModel3 = self.dataList[2];
+    MKNormalTextCellModel *cellModel3 = self.section0List[2];
     cellModel3.rightMsg = (self.dataModel.longIsOn ? @"ON" : @"OFF");
     
-    MKNormalTextCellModel *cellModel4 = self.dataList[3];
+    MKNormalTextCellModel *cellModel4 = self.section1List[0];
     cellModel4.rightMsg = (self.dataModel.inactivityIsOn ? @"ON" : @"OFF");
     
     [self.tableView reloadData];
@@ -108,21 +126,30 @@
 
 #pragma mark - loadSectionDatas
 - (void)loadSectionDatas {
+    [self loadSection0List];
+    [self loadSection1List];
+    
+    [self.tableView reloadData];
+}
+
+- (void)loadSection0List {
     MKNormalTextCellModel *cellModel1 = [[MKNormalTextCellModel alloc] init];
     cellModel1.leftMsg = @"Single press mode";
-    [self.dataList addObject:cellModel1];
+    [self.section0List addObject:cellModel1];
     
     MKNormalTextCellModel *cellModel2 = [[MKNormalTextCellModel alloc] init];
     cellModel2.leftMsg = @"Double press mode";
-    [self.dataList addObject:cellModel2];
+    [self.section0List addObject:cellModel2];
     
     MKNormalTextCellModel *cellModel3 = [[MKNormalTextCellModel alloc] init];
     cellModel3.leftMsg = @"Long press mode";
-    [self.dataList addObject:cellModel3];
-    
-    MKNormalTextCellModel *cellModel4 = [[MKNormalTextCellModel alloc] init];
-    cellModel4.leftMsg = @"Abnormal inactivity mode";
-    [self.dataList addObject:cellModel4];
+    [self.section0List addObject:cellModel3];
+}
+
+- (void)loadSection1List {
+    MKNormalTextCellModel *cellModel = [[MKNormalTextCellModel alloc] init];
+    cellModel.leftMsg = @"Abnormal inactivity mode";
+    [self.section1List addObject:cellModel];
 }
 
 #pragma mark - UI
@@ -147,11 +174,18 @@
     return _tableView;
 }
 
-- (NSMutableArray *)dataList {
-    if (!_dataList) {
-        _dataList = [NSMutableArray array];
+- (NSMutableArray *)section0List {
+    if (!_section0List) {
+        _section0List = [NSMutableArray array];
     }
-    return _dataList;
+    return _section0List;
+}
+
+- (NSMutableArray *)section1List {
+    if (!_section1List) {
+        _section1List = [NSMutableArray array];
+    }
+    return _section1List;
 }
 
 - (MKBXBAlarmPageModel *)dataModel {
