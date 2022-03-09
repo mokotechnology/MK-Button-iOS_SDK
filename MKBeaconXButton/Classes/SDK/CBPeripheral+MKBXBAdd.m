@@ -10,10 +10,13 @@
 
 #import <objc/runtime.h>
 
-static const char *bxb_customWriteKey = "bxb_customWriteKey";
-static const char *bxb_customNotifyKey = "bxb_customNotifyKey";
-static const char *bxb_alarmWriteKey = "bxb_alarmWriteKey";
-static const char *bxb_alarmNotifyKey = "bxb_alarmNotifyKey";
+static const char *bxb_customKey = "bxb_customKey";
+static const char *bxb_disconnectTypeKey = "bxb_disconnectTypeKey";
+static const char *bxb_singleAlarmDataKey = "bxb_singleAlarmDataKey";
+static const char *bxb_doubleAlarmDataKey = "bxb_doubleAlarmDataKey";
+static const char *bxb_longAlarmDataKey = "bxb_longAlarmDataKey";
+static const char *bxb_threeAxisDataKey = "bxb_threeAxisDataKey";
+static const char *bxb_passwordKey = "bxb_passwordKey";
 
 static const char *bxb_manufacturerKey = "bxb_manufacturerKey";
 static const char *bxb_deviceModelKey = "bxb_deviceModelKey";
@@ -22,8 +25,9 @@ static const char *bxb_hardwareKey = "bxb_hardwareKey";
 static const char *bxb_softwareKey = "bxb_softwareKey";
 static const char *bxb_firmwareKey = "bxb_firmwareKey";
 
-static const char *bxb_customNotifySuccessKey = "bxb_customNotifySuccessKey";
-static const char *bxb_alarmSuccessKey = "bxb_alarmSuccessKey";
+static const char *bxb_customSuccessKey = "bxb_customSuccessKey";
+static const char *bxb_disconnectTypeSuccessKey = "bxb_disconnectTypeSuccessKey";
+static const char *bxb_passwordSuccessKey = "bxb_passwordSuccessKey";
 
 @implementation CBPeripheral (MKBXBAdd)
 
@@ -48,19 +52,25 @@ static const char *bxb_alarmSuccessKey = "bxb_alarmSuccessKey";
         }
         return;
     }
-    if ([service.UUID isEqual:[CBUUID UUIDWithString:@"FEE0"]]) {
+    if ([service.UUID isEqual:[CBUUID UUIDWithString:@"AA00"]]) {
         //自定义
         for (CBCharacteristic *characteristic in characteristicList) {
-            if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"FEE1"]]) {
-                objc_setAssociatedObject(self, &bxb_customWriteKey, characteristic, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA01"]]) {
+                objc_setAssociatedObject(self, &bxb_customKey, characteristic, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
                 [self setNotifyValue:YES forCharacteristic:characteristic];
-            }else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"FEE2"]]) {
-                objc_setAssociatedObject(self, &bxb_customNotifyKey, characteristic, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            }else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA02"]]) {
+                objc_setAssociatedObject(self, &bxb_disconnectTypeKey, characteristic, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
                 [self setNotifyValue:YES forCharacteristic:characteristic];
-            }else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"FEE3"]]) {
-                objc_setAssociatedObject(self, &bxb_alarmWriteKey, characteristic, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-            }else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"FEE4"]]) {
-                objc_setAssociatedObject(self, &bxb_alarmNotifyKey, characteristic, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            }else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA03"]]) {
+                objc_setAssociatedObject(self, &bxb_singleAlarmDataKey, characteristic, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            }else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA04"]]) {
+                objc_setAssociatedObject(self, &bxb_doubleAlarmDataKey, characteristic, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            }else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA05"]]) {
+                objc_setAssociatedObject(self, &bxb_longAlarmDataKey, characteristic, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            }else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA06"]]) {
+                objc_setAssociatedObject(self, &bxb_threeAxisDataKey, characteristic, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            }else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA07"]]) {
+                objc_setAssociatedObject(self, &bxb_passwordKey, characteristic, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
                 [self setNotifyValue:YES forCharacteristic:characteristic];
             }
         }
@@ -69,18 +79,22 @@ static const char *bxb_alarmSuccessKey = "bxb_alarmSuccessKey";
 }
 
 - (void)bxb_updateCurrentNotifySuccess:(CBCharacteristic *)characteristic {
-    if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"FEE2"]]){
-        objc_setAssociatedObject(self, &bxb_customNotifySuccessKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA01"]]){
+        objc_setAssociatedObject(self, &bxb_customSuccessKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         return;
     }
-    if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"FEE4"]]) {
-        objc_setAssociatedObject(self, &bxb_alarmSuccessKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA02"]]){
+        objc_setAssociatedObject(self, &bxb_disconnectTypeSuccessKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        return;
+    }
+    if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA07"]]) {
+        objc_setAssociatedObject(self, &bxb_passwordSuccessKey, @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         return;
     }
 }
 
 - (BOOL)bxb_connectSuccess {
-    if (![objc_getAssociatedObject(self, &bxb_customNotifySuccessKey) boolValue] || ![objc_getAssociatedObject(self, &bxb_alarmSuccessKey) boolValue]) {
+    if (![objc_getAssociatedObject(self, &bxb_disconnectTypeSuccessKey) boolValue] || ![objc_getAssociatedObject(self, &bxb_customSuccessKey) boolValue] || ![objc_getAssociatedObject(self, &bxb_passwordSuccessKey) boolValue]) {
         return NO;
     }
     if (![self bxb_customServiceSuccess] || ![self bxb_deviceInfoServiceSuccess]) {
@@ -97,13 +111,17 @@ static const char *bxb_alarmSuccessKey = "bxb_alarmSuccessKey";
     objc_setAssociatedObject(self, &bxb_softwareKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     objc_setAssociatedObject(self, &bxb_firmwareKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
-    objc_setAssociatedObject(self, &bxb_customWriteKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    objc_setAssociatedObject(self, &bxb_customNotifyKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    objc_setAssociatedObject(self, &bxb_alarmWriteKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    objc_setAssociatedObject(self, &bxb_alarmNotifyKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &bxb_customKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &bxb_disconnectTypeKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &bxb_singleAlarmDataKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &bxb_doubleAlarmDataKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &bxb_longAlarmDataKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &bxb_threeAxisDataKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &bxb_passwordKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     
-    objc_setAssociatedObject(self, &bxb_customNotifySuccessKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    objc_setAssociatedObject(self, &bxb_alarmSuccessKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &bxb_customSuccessKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &bxb_disconnectTypeSuccessKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &bxb_passwordSuccessKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 #pragma mark - getter
@@ -132,25 +150,37 @@ static const char *bxb_alarmSuccessKey = "bxb_alarmSuccessKey";
     return objc_getAssociatedObject(self, &bxb_firmwareKey);
 }
 
-- (CBCharacteristic *)bxb_customWrite {
-    return objc_getAssociatedObject(self, &bxb_customWriteKey);
+- (CBCharacteristic *)bxb_custom {
+    return objc_getAssociatedObject(self, &bxb_customKey);
 }
 
-- (CBCharacteristic *)bxb_customNotify {
-    return objc_getAssociatedObject(self, &bxb_customNotifyKey);
+- (CBCharacteristic *)bxb_disconnectType {
+    return objc_getAssociatedObject(self, &bxb_disconnectTypeKey);
 }
 
-- (CBCharacteristic *)bxb_alarmWrite {
-    return objc_getAssociatedObject(self, &bxb_alarmWriteKey);
+- (CBCharacteristic *)bxb_singleAlarmData {
+    return objc_getAssociatedObject(self, &bxb_singleAlarmDataKey);
 }
 
-- (CBCharacteristic *)bxb_alarmNotify {
-    return objc_getAssociatedObject(self, &bxb_alarmNotifyKey);
+- (CBCharacteristic *)bxb_doubleAlarmData {
+    return objc_getAssociatedObject(self, &bxb_doubleAlarmDataKey);
+}
+
+- (CBCharacteristic *)bxb_longAlarmData {
+    return objc_getAssociatedObject(self, &bxb_longAlarmDataKey);
+}
+
+- (CBCharacteristic *)bxb_threeAxisData {
+    return objc_getAssociatedObject(self, &bxb_threeAxisDataKey);
+}
+
+- (CBCharacteristic *)bxb_password {
+    return objc_getAssociatedObject(self, &bxb_passwordKey);
 }
 
 #pragma mark - private method
 - (BOOL)bxb_customServiceSuccess {
-    if (!self.bxb_customWrite || !self.bxb_customNotify || !self.bxb_alarmWrite || !self.bxb_alarmNotify) {
+    if (!self.bxb_custom || !self.bxb_disconnectType || !self.bxb_singleAlarmData || !self.bxb_doubleAlarmData || !self.bxb_longAlarmData || !self.bxb_threeAxisData || !self.bxb_password) {
         return NO;
     }
     return YES;

@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class MKBXBScanDataModel;
 @protocol MKBXBScanDeviceDataCellDelegate <NSObject>
 
-- (void)mk_bxb_connectPeripheral:(MKBXBScanDataModel *)dataModel;
+- (void)mk_bxb_connectPeripheral:(CBPeripheral *)peripheral;
 
 @end
 @interface MKBXBScanDeviceDataCell : MKBaseCell

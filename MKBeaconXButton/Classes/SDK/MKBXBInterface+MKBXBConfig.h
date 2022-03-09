@@ -8,8 +8,6 @@
 
 #import "MKBXBInterface.h"
 
-#import "MKBXBSDKNormalDefines.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MKBXBInterface (MKBXBConfig)
@@ -29,6 +27,30 @@ NS_ASSUME_NONNULL_BEGIN
                              sucBlock:(void (^)(void))sucBlock
                           failedBlock:(void (^)(NSError *error))failedBlock;
 
+/// Configure the connectable state of the device.
+/// @param connectable connectable
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configConnectable:(BOOL)connectable
+                     sucBlock:(void (^)(void))sucBlock
+                  failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Whether the device has enabled password verification when connecting. When the device has disabled password verification, no password is required to connect to the device, otherwise a connection password is required.
+/// @param isOn isOn
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configPasswordVerification:(BOOL)isOn
+                              sucBlock:(void (^)(void))sucBlock
+                           failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Configure the current connection password of the device.
+/// @param password 1~16 ascii characters.
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configConnectPassword:(NSString *)password
+                         sucBlock:(void (^)(void))sucBlock
+                      failedBlock:(void (^)(NSError *error))failedBlock;
+
 /// Effective click interval.
 /// @param interval 5~15.(unit:100ms)
 /// @param sucBlock Success callback
@@ -36,6 +58,26 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)bxb_configEffectiveClickInterval:(NSInteger)interval
                                 sucBlock:(void (^)(void))sucBlock
                              failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Power Off.
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_powerOffWithSucBlock:(void (^)(void))sucBlock
+                     failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Reset.
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_factoryResetWithSucBlock:(void (^)(void))sucBlock
+                         failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Turn off Device by button.
+/// @param isOn isOn
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configTurnOffDeviceByButtonStatus:(BOOL)isOn
+                                     sucBlock:(void (^)(void))sucBlock
+                                  failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Scan response packet.
 /// @param isOn isOn
@@ -45,13 +87,13 @@ NS_ASSUME_NONNULL_BEGIN
                             sucBlock:(void (^)(void))sucBlock
                          failedBlock:(void (^)(NSError *error))failedBlock;
 
-/// Activate the channel type that triggers the alarm function.
-/// @param alarmType alarmType
+/// Reset Device by button.
+/// @param isOn isOn
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
-+ (void)bxb_configActiveChannel:(MKBXBChannelAlarmType)alarmType
-                       sucBlock:(void (^)(void))sucBlock
-                    failedBlock:(void (^)(NSError *error))failedBlock;
++ (void)bxb_configResetDeviceByButtonStatus:(BOOL)isOn
+                                   sucBlock:(void (^)(void))sucBlock
+                                failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Configure the channel broadcast parameters that trigger the alarm function.
 /// @param protocol protocol
@@ -73,7 +115,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param isOn isOn
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
-+ (void)bxb_configStayAdvertisingBeforeTriggered:(BOOL)isOn
++ (void)bxb_configStayAdvertisingBeforeTriggered:(MKBXBChannelAlarmType)channelType
+                                            isOn:(BOOL)isOn
                                         sucBlock:(void (^)(void))sucBlock
                                      failedBlock:(void (^)(NSError *error))failedBlock;
 
@@ -81,15 +124,114 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param type type
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
-+ (void)bxb_configAlarmNotificationType:(mk_bxb_reminderType)type
++ (void)bxb_configAlarmNotificationType:(MKBXBChannelAlarmType)channelType
+                           reminderType:(mk_bxb_reminderType)reminderType
                                sucBlock:(void (^)(void))sucBlock
                             failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Abnormal inactivity time.
+/// @param time 1s~65535s.
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configAbnormalInactivityTime:(NSInteger)time
+                                sucBlock:(void (^)(void))sucBlock
+                             failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Power saving mode.
+/// @param isOn isOn
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configPowerSavingMode:(BOOL)isOn
+                         sucBlock:(void (^)(void))sucBlock
+                      failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// After device keep static for time, it will stop advertising and disable alarm mode to enter into power saving mode until device moves.
+/// @param time 1s~65535s
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configStaticTriggerTime:(NSInteger)time
+                           sucBlock:(void (^)(void))sucBlock
+                        failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Trigger LED reminder parameters.
+/// @param channelType channelType
+/// @param blinkingTime Blinking time.1 ~ 6000(Unit:100ms)
+/// @param blinkingInterval Blinking interval.1 ~ 100(Unit:100ms)
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configAlarmLEDNotiParams:(MKBXBChannelAlarmType)channelType
+                        blinkingTime:(NSInteger)blinkingTime
+                    blinkingInterval:(NSInteger)blinkingInterval
+                            sucBlock:(void (^)(void))sucBlock
+                         failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Trigger Vibration reminder parameters.
+/// @param channelType channelType
+/// @param vibratingTime Vibrating time.1 ~ 6000(Unit:100ms)
+/// @param vibratingInterval Vibrating interval.1 ~ 100(Unit:100ms)
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configAlarmVibrationNotiParams:(MKBXBChannelAlarmType)channelType
+                             vibratingTime:(NSInteger)vibratingTime
+                         vibratingInterval:(NSInteger)vibratingInterval
+                                  sucBlock:(void (^)(void))sucBlock
+                               failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Trigger Buzzer reminder parameters.
+/// @param channelType channelType
+/// @param ringingTime Ringing time.1 ~ 6000(Unit:100ms)
+/// @param ringingInterval Ringing interval.1 ~ 100(Unit:100ms)
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configAlarmBuzzerNotiParams:(MKBXBChannelAlarmType)channelType
+                            ringingTime:(NSInteger)ringingTime
+                        ringingInterval:(NSInteger)ringingInterval
+                               sucBlock:(void (^)(void))sucBlock
+                            failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Remote LED reminder parameters.
+/// @param blinkingTime Blinking time.1 ~ 6000(Unit:100ms)
+/// @param blinkingInterval Blinking interval.1 ~ 100(Unit:100ms)
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configRemoteReminderLEDNotiParams:(NSInteger)blinkingTime
+                             blinkingInterval:(NSInteger)blinkingInterval
+                                     sucBlock:(void (^)(void))sucBlock
+                                  failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Remote Vibration reminder parameters.
+/// @param vibratingTime Vibrating time.1 ~ 6000(Unit:100ms)
+/// @param vibratingInterval Vibrating interval.1 ~ 100(Unit:100ms)
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configRemoteReminderVibrationNotiParams:(NSInteger)vibratingTime
+                                  vibratingInterval:(NSInteger)vibratingInterval
+                                           sucBlock:(void (^)(void))sucBlock
+                                        failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Remote Buzzer reminder parameters.
+/// @param ringingTime Ringing time.1 ~ 6000(Unit:100ms)
+/// @param ringingInterval Ringing interval.1 ~ 100(Unit:100ms)
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configRemoteReminderBuzzerNotiParams:(NSInteger)ringingTime
+                                 ringingInterval:(NSInteger)ringingInterval
+                                        sucBlock:(void (^)(void))sucBlock
+                                     failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Dismiss alarm.
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
 + (void)bxb_configDismissAlarmWithSucBlock:(void (^)(void))sucBlock
                                failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Dismiss alarm by button.
+/// @param isOn isOn
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_configDismissAlarmByButton:(BOOL)isOn
+                              sucBlock:(void (^)(void))sucBlock
+                           failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Configure LED dismissal alarm parameter.
 /// @param time 1~6000 (unit:100ms)
@@ -156,7 +298,7 @@ NS_ASSUME_NONNULL_BEGIN
                  failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Configure the device' ID.
-/// @param deviceID 1 ~ 8 Bytes.(HEX)
+/// @param deviceID 1 ~ 6 Bytes.(HEX)
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
 + (void)bxb_configDeviceID:(NSString *)deviceID
@@ -170,6 +312,19 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)bxb_configDeviceName:(NSString *)deviceName
                     sucBlock:(void (^)(void))sucBlock
                  failedBlock:(void (^)(NSError *error))failedBlock;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #pragma mark - FEE3
 

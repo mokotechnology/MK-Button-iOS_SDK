@@ -30,11 +30,12 @@
     if (![self validTriggerChannelAdvParamsProtocol:protocol]) {
         return @"";
     }
+    NSString *channel = [MKBLEBaseSDKAdopter fetchHexValue:protocol.alarmType byteLen:1];
     NSString *state = (protocol.isOn ? @"01" : @"00");
     NSString *rssiValue = [MKBLEBaseSDKAdopter hexStringFromSignedNumber:protocol.rssi];
     NSString *advInterval = [MKBLEBaseSDKAdopter fetchHexValue:([protocol.advInterval integerValue] * 20) byteLen:2];
     NSString *txPower = [self fetchTxPower:protocol.txPower];
-    NSString *commandString = [NSString stringWithFormat:@"%@%@%@%@%@",@"ea540005",state,rssiValue,advInterval,txPower];
+    NSString *commandString = [NSString stringWithFormat:@"%@%@%@%@%@%@",@"ea013406",channel,state,rssiValue,advInterval,txPower];
     return commandString;
 }
 
@@ -58,12 +59,13 @@
     if (![self validChannelTriggerParamsProtocol:protocol]) {
         return @"";
     }
+    NSString *channel = [MKBLEBaseSDKAdopter fetchHexValue:protocol.alarmType byteLen:1];
     NSString *state = (protocol.alarm ? @"01" : @"00");
     NSString *rssiValue = [MKBLEBaseSDKAdopter hexStringFromSignedNumber:protocol.rssi];
     NSString *advInterval = [MKBLEBaseSDKAdopter fetchHexValue:([protocol.advInterval integerValue] * 20) byteLen:2];
     NSString *txPower = [self fetchTxPower:protocol.txPower];
     NSString *advTime = [MKBLEBaseSDKAdopter fetchHexValue:[protocol.advertisingTime integerValue] byteLen:2];
-    NSString *commandString = [NSString stringWithFormat:@"%@%@%@%@%@%@",@"ea550007",state,rssiValue,advInterval,txPower,advTime];
+    NSString *commandString = [NSString stringWithFormat:@"%@%@%@%@%@%@%@",@"ea013508",channel,state,rssiValue,advInterval,txPower,advTime];
     return commandString;
 }
 

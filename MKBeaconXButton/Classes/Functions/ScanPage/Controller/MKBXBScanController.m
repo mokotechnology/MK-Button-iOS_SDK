@@ -211,8 +211,8 @@ MKBXBTabBarControllerDelegate>
 }
 
 #pragma mark - MKBXBScanDeviceDataCellDelegate
-- (void)mk_bxb_connectPeripheral:(MKBXBScanDataModel *)dataModel; {
-    [self connectPeripheral:dataModel];
+- (void)mk_bxb_connectPeripheral:(CBPeripheral *)peripheral {
+    [self connectPeripheral:peripheral];
 }
 
 #pragma mark - MKBXBTabBarControllerDelegate
@@ -359,20 +359,30 @@ MKBXBTabBarControllerDelegate>
 }
 
 #pragma mark - 连接部分
-- (void)connectPeripheral:(MKBXBScanDataModel *)scanDataModel {
+- (void)connectPeripheral:(CBPeripheral *)peripheral {
     //停止扫描
     [self.refreshIcon.layer removeAnimationForKey:@"mk_refreshAnimationKey"];
     [[MKBXBCentralManager shared] stopScan];
     if (self.scanTimer) {
         dispatch_cancel(self.scanTimer);
     }
-    
-    if (!scanDataModel.needPassword) {
-        //免密登录
-        [self connectDeviceWithDataModel:scanDataModel];
-        return;
-    }
-    
+    [[MKHudManager share] showHUDWithTitle:@"Reading..." inView:self.view isPenetration:NO];
+    [[MKBXBCentralManager shared] readNeedPasswordWithPeripheral:peripheral sucBlock:^(NSDictionary * _Nonnull result) {
+        [[MKHudManager share] hide];
+        if ([result[@"state"] isEqualToString:@"00"]) {
+            //免密登录
+            [self connectDeviceWithoutPassword:peripheral];
+            return;
+        }
+        [self connectDeviceWithPassword:peripheral];
+    } failedBlock:^(NSError * _Nonnull error) {
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
+        [self connectFailed];
+    }];
+}
+
+- (void)connectDeviceWithPassword:(CBPeripheral *)peripheral {
     NSString *msg = @"Please enter connection password.";
     MKAlertController *alertController = [MKAlertController alertControllerWithTitle:@"Enter password"
                                                                              message:msg
@@ -396,15 +406,19 @@ MKBXBTabBarControllerDelegate>
     [alertController addAction:cancelAction];
     UIAlertAction *moreAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         @strongify(self);
-        [self connectDeviceWithDataModel:scanDataModel];
+        [self startConnectPeripheral:peripheral needPassword:YES];
     }];
     [alertController addAction:moreAction];
     
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
-- (void)connectDeviceWithDataModel:(MKBXBScanDataModel *)scanDataModel {
-    if (scanDataModel.needPassword) {
+- (void)connectDeviceWithoutPassword:(CBPeripheral *)peripheral {
+    [self startConnectPeripheral:peripheral needPassword:NO];
+}
+
+- (void)startConnectPeripheral:(CBPeripheral *)peripheral needPassword:(BOOL)needPassword {
+    if (needPassword) {
         NSString *password = self.passwordField.text;
         if (!ValidStr(password) || password.length > 16) {
             [self.view showCentralToast:@"No more than 16 characters."];
@@ -412,7 +426,7 @@ MKBXBTabBarControllerDelegate>
         }
     }
     [[MKHudManager share] showHUDWithTitle:@"Connecting..." inView:self.view isPenetration:NO];
-    [[MKBXBConnectManager shared] connectDevice:scanDataModel.peripheral password:(scanDataModel.needPassword ? self.passwordField.text : @"") sucBlock:^{
+    [[MKBXBConnectManager shared] connectDevice:peripheral password:(needPassword ? self.passwordField.text : @"") sucBlock:^{
         if (ValidStr(self.passwordField.text) && self.passwordField.text.length < 16) {
             [[NSUserDefaults standardUserDefaults] setObject:self.passwordField.text forKey:localPasswordKey];
         }

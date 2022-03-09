@@ -32,10 +32,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly)CBCharacteristic *bxb_firmware;
 
 #pragma mark - Custom Characteristic
-@property (nonatomic, strong, readonly)CBCharacteristic *bxb_customWrite;
-@property (nonatomic, strong, readonly)CBCharacteristic *bxb_customNotify;
-@property (nonatomic, strong, readonly)CBCharacteristic *bxb_alarmWrite;
-@property (nonatomic, strong, readonly)CBCharacteristic *bxb_alarmNotify;
+@property (nonatomic, strong, readonly)CBCharacteristic *bxb_custom;
+@property (nonatomic, strong, readonly)CBCharacteristic *bxb_disconnectType;
+@property (nonatomic, strong, readonly)CBCharacteristic *bxb_singleAlarmData;
+@property (nonatomic, strong, readonly)CBCharacteristic *bxb_doubleAlarmData;
+@property (nonatomic, strong, readonly)CBCharacteristic *bxb_longAlarmData;
+@property (nonatomic, strong, readonly)CBCharacteristic *bxb_threeAxisData;
+@property (nonatomic, strong, readonly)CBCharacteristic *bxb_password;
 
 - (void)bxb_updateCharacterWithService:(CBService *)service;
 

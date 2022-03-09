@@ -48,7 +48,11 @@ static dispatch_once_t onceToken;
 
 @property (nonatomic, copy)void (^failedBlock)(NSError *error);
 
+@property (nonatomic, copy)void (^needPasswordBlock)(NSDictionary *result);
+
 @property (nonatomic, copy)NSString *password;
+
+@property (nonatomic, assign)BOOL readingNeedPassword;
 
 @end
 
@@ -120,6 +124,10 @@ static dispatch_once_t onceToken;
 }
 
 - (void)MKBLEBasePeripheralConnectStateChanged:(MKPeripheralConnectState)connectState {
+    if (self.readingNeedPassword) {
+        //正在读取lockState的时候不对连接状态做出回调
+        return;
+    }
     //连接成功的判断必须是发送密码成功之后
     if (connectState == MKPeripheralConnectStateUnknow) {
         self.connectStatus = mk_bxb_centralConnectStatusUnknow;
@@ -171,6 +179,42 @@ static dispatch_once_t onceToken;
 
 - (void)stopScan {
     [[MKBLEBaseCentralManager shared] stopScan];
+}
+
+- (void)readNeedPasswordWithPeripheral:(nonnull CBPeripheral *)peripheral
+                              sucBlock:(void (^)(NSDictionary *result))sucBlock
+                           failedBlock:(void (^)(NSError *error))failedBlock {
+    if (self.readingNeedPassword) {
+        [self operationFailedBlockWithMsg:@"Device is busy now" failedBlock:failedBlock];
+        return;
+    }
+    self.readingNeedPassword = YES;
+    self.needPasswordBlock = nil;
+    self.failedBlock = nil;
+    self.failedBlock = failedBlock;
+    __weak typeof(self) weakSelf = self;
+    self.needPasswordBlock = ^(NSDictionary *result) {
+        __strong typeof(self) sself = weakSelf;
+        if (!MKValidDict(result)) {
+            [sself clearAllParams];
+            [self operationFailedBlockWithMsg:@"Read Error" failedBlock:failedBlock];
+            return;
+        }
+        [sself clearAllParams];
+        if (sucBlock) {
+            MKBLEBase_main_safe(^{sucBlock(result);});
+        }
+    };
+    MKBXBPeripheral *bxbPeripheral = [[MKBXBPeripheral alloc] initWithPeripheral:peripheral];
+    [[MKBLEBaseCentralManager shared] connectDevice:bxbPeripheral sucBlock:^(CBPeripheral * _Nonnull peripheral) {
+        [self confirmNeedPassword];
+    } failedBlock:^(NSError * _Nonnull error) {
+        __strong typeof(self) sself = weakSelf;
+        [sself clearAllParams];
+        if (failedBlock) {
+            failedBlock(error);
+        }
+    }];
 }
 
 - (void)connectPeripheral:(CBPeripheral *)peripheral
@@ -296,17 +340,17 @@ static dispatch_once_t onceToken;
     if (lenString.length == 1) {
         lenString = [@"0" stringByAppendingString:lenString];
     }
-    NSString *commandData = [@"ea8500" stringByAppendingString:lenString];
+    NSString *commandData = [@"ea0155" stringByAppendingString:lenString];
     for (NSInteger i = 0; i < self.password.length; i ++) {
         int asciiCode = [self.password characterAtIndex:i];
         commandData = [commandData stringByAppendingString:[NSString stringWithFormat:@"%1lx",(unsigned long)asciiCode]];
     }
     __weak typeof(self) weakSelf = self;
     MKBXBOperation *operation = [[MKBXBOperation alloc] initOperationWithID:mk_bxb_connectPasswordOperation commandBlock:^{
-        [[MKBLEBaseCentralManager shared] sendDataToPeripheral:commandData characteristic:[MKBLEBaseCentralManager shared].peripheral.bxb_customWrite type:CBCharacteristicWriteWithResponse];
+        [[MKBLEBaseCentralManager shared] sendDataToPeripheral:commandData characteristic:[MKBLEBaseCentralManager shared].peripheral.bxb_password type:CBCharacteristicWriteWithResponse];
     } completeBlock:^(NSError * _Nullable error, id  _Nullable returnData) {
         __strong typeof(self) sself = weakSelf;
-        if (error || !MKValidDict(returnData) || ![returnData[@"state"] isEqualToString:@"01"]) {
+        if (error || !MKValidDict(returnData) || ![returnData[@"success"] boolValue]) {
             //密码错误
             [sself operationFailedBlockWithMsg:@"Password Error" failedBlock:sself.failedBlock];
             return ;
@@ -317,6 +361,23 @@ static dispatch_once_t onceToken;
             [[NSNotificationCenter defaultCenter] postNotificationName:mk_bxb_peripheralConnectStateChangedNotification object:nil];
             if (sself.sucBlock) {
                 sself.sucBlock([MKBLEBaseCentralManager shared].peripheral);
+            }
+        });
+    }];
+    [[MKBLEBaseCentralManager shared] addOperation:operation];
+}
+
+- (void)confirmNeedPassword {
+    NSString *commandData = @"ea002300";
+    __weak typeof(self) weakSelf = self;
+    MKBXBOperation *operation = [[MKBXBOperation alloc] initOperationWithID:mk_bxb_taskReadNeedPasswordOperation commandBlock:^{
+        [[MKBLEBaseCentralManager shared] sendDataToPeripheral:commandData characteristic:[MKBLEBaseCentralManager shared].peripheral.bxb_password type:CBCharacteristicWriteWithResponse];
+    } completeBlock:^(NSError * _Nullable error, id  _Nullable returnData) {
+        __strong typeof(self) sself = weakSelf;
+        //读取成功
+        MKBLEBase_main_safe(^{
+            if (sself.needPasswordBlock) {
+                sself.needPasswordBlock(returnData);
             }
         });
     }];
@@ -416,6 +477,13 @@ static dispatch_once_t onceToken;
 - (void)clearAllParams {
     self.sucBlock = nil;
     self.failedBlock = nil;
+    if (!self.needPasswordBlock) {
+        return;
+    }
+    //读取是否需要密码
+    [self disconnect];
+    self.needPasswordBlock = nil;
+    self.readingNeedPassword = NO;
 }
 
 - (void)operationFailedBlockWithMsg:(NSString *)message failedBlock:(void (^)(NSError *error))failedBlock {

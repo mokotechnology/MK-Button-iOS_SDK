@@ -53,8 +53,6 @@ typedef NS_ENUM(NSInteger, MKBXBAdvAlarmType) {
 
 @property (nonatomic, copy)NSString *deviceName;
 
-@property (nonatomic, assign)BOOL needPassword;
-
 + (MKBXBBaseAdvModel *)parseAdvData:(NSDictionary *)advData
                          peripheral:(CBPeripheral *)peripheral
                                RSSI:(NSNumber *)RSSI;

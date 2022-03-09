@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "MKBXBSDKNormalDefines.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MKBXBInterface : NSObject
@@ -75,6 +77,39 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)bxb_readThreeAxisDataParamsWithSucBlock:(void (^)(id returnData))sucBlock
                                     failedBlock:(void (^)(NSError *error))failedBlock;
 
+/// Read the connectable status of the device.
+/*
+ @{
+ @"connectable":@(YES)
+ }
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readConnectableWithSucBlock:(void (^)(id returnData))sucBlock
+                            failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Whether the device has enabled password verification when connecting. When the device has disabled password verification, no password is required to connect to the device, otherwise a connection password is required.
+/*
+ @{
+ @"isOn":@(YES)
+ }
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readPasswordVerificationWithSucBlock:(void (^)(id returnData))sucBlock
+                                     failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Read the current connection password of the device.
+/*
+ @{
+ @"password":@"xxxxx"
+ }
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readConnectPasswordWithSucBlock:(void (^)(id returnData))sucBlock
+                                failedBlock:(void (^)(NSError *error))failedBlock;
+
 /// Effective click interval.
 /*
  @{
@@ -86,6 +121,33 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)bxb_readEffectiveClickIntervalWithSucBlock:(void (^)(id returnData))sucBlock
                                        failedBlock:(void (^)(NSError *error))failedBlock;
 
+/// Turn off Device by button.
+/*
+ @{
+ @"isOn":@(YES)
+ }
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readTurnOffDeviceByButtonStatusWithSucBlock:(void (^)(id returnData))sucBlock
+                                            failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Scan response packet.
+/*
+ @{
+ @"isOn":@(YES)
+ }
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readScanResponsePacketWithSucBlock:(void (^)(id returnData))sucBlock
+                                   failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Reset Device by button.
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readResetDeviceByButtonStatusWithSucBlock:(void (^)(id returnData))sucBlock
+                                          failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Read the broadcast enable condition of each channel.
 /*
@@ -104,6 +166,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Read the channel broadcast parameters that trigger the alarm function.
 /*
  @{
+    @"channelType":@"00",           //@"00":Single  @"01":Double   @"02":Long  @"03":Abnormal Inactivity.
      @"isOn":@(YES),                //SLOT advertisement is on.
      @"rssi":@"-90",                //Ranging data
      @"advInterval":@"30",          //Adv Interval
@@ -112,12 +175,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
-+ (void)bxb_readTriggerChannelAdvParamsWithSucBlock:(void (^)(id returnData))sucBlock
-                                        failedBlock:(void (^)(NSError *error))failedBlock;
++ (void)bxb_readTriggerChannelAdvParams:(MKBXBChannelAlarmType)channelType
+                               sucBlock:(void (^)(id returnData))sucBlock
+                            failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Read the trigger broadcast parameters of the channel.
 /*
  @{
+ @"channelType":@"00",           //@"00":Single  @"01":Double   @"02":Long  @"03":Abnormal Inactivity.
      @"alarm":@(YES),           //Whether to enable trigger function.
     @"rssi":@"-90",                //Ranging data
     @"advInterval":@"30",          //Adv Interval
@@ -127,25 +192,155 @@ NS_ASSUME_NONNULL_BEGIN
  */
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
-+ (void)bxb_readChannelTriggerParamsWithSucBlock:(void (^)(id returnData))sucBlock
-                                     failedBlock:(void (^)(NSError *error))failedBlock;
++ (void)bxb_readChannelTriggerParams:(MKBXBChannelAlarmType)channelType
+                            sucBlock:(void (^)(id returnData))sucBlock
+                         failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Stay advertising before triggered.
+/*
+ @{
+ @"channelType":@"00",           //@"00":Single  @"01":Double   @"02":Long  @"03":Abnormal Inactivity.
+ @"isOn":@(YES),
+ }
+ */
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
-+ (void)bxb_readStayAdvertisingBeforeTriggeredWithSucBlock:(void (^)(id returnData))sucBlock
-                                               failedBlock:(void (^)(NSError *error))failedBlock;
++ (void)bxb_readStayAdvertisingBeforeTriggered:(MKBXBChannelAlarmType)channelType
+                                      sucBlock:(void (^)(id returnData))sucBlock
+                                   failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Alarm notification type.
 /*
  @{
+ @"channelType":@"00",           //@"00":Single  @"01":Double   @"02":Long  @"03":Abnormal Inactivity.
     @"alarmNotificationType":@"0"           //0:Silent  1:LED 2:Vibration 3:Buzzer 4:LED+Vibration  5:LED+Buzzer
  }
  */
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
-+ (void)bxb_readAlarmNotificationTypeWithSucBlock:(void (^)(id returnData))sucBlock
-                                      failedBlock:(void (^)(NSError *error))failedBlock;
++ (void)bxb_readAlarmNotificationType:(MKBXBChannelAlarmType)channelType
+                             sucBlock:(void (^)(id returnData))sucBlock
+                          failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Abnormal inactivity time.
+/*
+ @{
+ @"time":time
+ }
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readAbnormalInactivityTimeWithSucBlock:(void (^)(id returnData))sucBlock
+                                       failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Power saving mode.
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readPowerSavingModeWithSucBlock:(void (^)(id returnData))sucBlock
+                                failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// After device keep static for time, it will stop advertising and disable alarm mode to enter into power saving mode until device moves.
+/*
+ @{
+ @"time":time
+ }
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readStaticTriggerTimeWithSucBlock:(void (^)(id returnData))sucBlock
+                                  failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Trigger LED reminder parameters.
+/*
+ @{
+ @"channelType":@"00",           //@"00":Single  @"01":Double   @"02":Long  @"03":Abnormal Inactivity.
+ @"time":@"10",         //x100ms
+ @"interval":@"5",      //x100ms
+ }
+ */
+/// @param channelType channelType
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readAlarmLEDNotiParams:(MKBXBChannelAlarmType)channelType
+                          sucBlock:(void (^)(id returnData))sucBlock
+                       failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Trigger Vibration reminder parameters.
+/*
+ @{
+ @"channelType":@"00",           //@"00":Single  @"01":Double   @"02":Long  @"03":Abnormal Inactivity.
+ @"time":@"10",         //x100ms
+ @"interval":@"5",      //x100ms
+ }
+ */
+/// @param channelType channelType
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readAlarmVibrationNotiParams:(MKBXBChannelAlarmType)channelType
+                                sucBlock:(void (^)(id returnData))sucBlock
+                             failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Buzzer Vibration reminder parameters.
+/*
+ @{
+ @"channelType":@"00",           //@"00":Single  @"01":Double   @"02":Long  @"03":Abnormal Inactivity.
+ @"time":@"10",         //x100ms
+ @"interval":@"5",      //x100ms
+ }
+ */
+/// @param channelType channelType
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readAlarmBuzzerNotiParams:(MKBXBChannelAlarmType)channelType
+                             sucBlock:(void (^)(id returnData))sucBlock
+                          failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Remote LED reminder parameters.
+/*
+ @{
+ @"time":@"10",         //x100ms
+ @"interval":@"5",      //x100ms
+ }
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readRemoteReminderLEDNotiParamsWithSucBlock:(void (^)(id returnData))sucBlock
+                                            failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Remote Vibration reminder parameters.
+/*
+ @{
+ @"time":@"10",         //x100ms
+ @"interval":@"5",      //x100ms
+ }
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readRemoteReminderVibrationNotiParamsWithSucBlock:(void (^)(id returnData))sucBlock
+                                                  failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Remote Buzzer reminder parameters.
+/*
+ @{
+ @"time":@"10",         //x100ms
+ @"interval":@"5",      //x100ms
+ }
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readRemoteReminderBuzzerNotiParamsWithSucBlock:(void (^)(id returnData))sucBlock
+                                               failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Dismiss alarm by button.
+/*
+ @{
+ @"isOn":@(YES)
+ }
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readDismissAlarmByButtonWithSucBlock:(void (^)(id returnData))sucBlock
+                                     failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Read LED dismissal alarm parameter.
 /*
@@ -195,12 +390,22 @@ NS_ASSUME_NONNULL_BEGIN
                                              failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Read the Voltage of the device.
+/*
+ @{
+ @"voltage":@"3330",        //mV
+ }
+ */
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
 + (void)bxb_readBatteryVoltageWithSucBlock:(void (^)(id returnData))sucBlock
                                failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Read device current time.
+/*
+ @{
+ @"timestamp":@"1646797042924",
+ }
+ */
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
 + (void)bxb_readDeviceTimeWithSucBlock:(void (^)(id returnData))sucBlock
@@ -220,34 +425,68 @@ NS_ASSUME_NONNULL_BEGIN
                              failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Read the device' ID.
+/*
+ @{
+ @"deviceID":@"112233"
+ }
+ */
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
 + (void)bxb_readDeviceIDWithSucBlock:(void (^)(id returnData))sucBlock
                          failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Read the broadcast name of the device.
+/*
+ @"deviceName":@"MK Button"
+ */
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
 + (void)bxb_readDeviceNameWithSucBlock:(void (^)(id returnData))sucBlock
                            failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Read the count of the single press event.
+/*
+ @{
+ @"count":@"0"
+ }
+ */
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
 + (void)bxb_readSinglePressEventCountWithSucBlock:(void (^)(id returnData))sucBlock
                                       failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Read the count of the double press event.
+/*
+ @{
+ @"count":@"0"
+ }
+ */
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
 + (void)bxb_readDoublePressEventCountWithSucBlock:(void (^)(id returnData))sucBlock
                                       failedBlock:(void (^)(NSError *error))failedBlock;
 
 /// Read the count of the long press event.
+/*
+ @{
+ @"count":@"0"
+ }
+ */
 /// @param sucBlock Success callback
 /// @param failedBlock Failure callback
 + (void)bxb_readLongPressEventCountWithSucBlock:(void (^)(id returnData))sucBlock
                                     failedBlock:(void (^)(NSError *error))failedBlock;
+
+/// Read Device Type.
+/*
+ @{
+ @"deviceType":@"00"
+ }
+ */
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
++ (void)bxb_readDeviceTypeWithSucBlock:(void (^)(id returnData))sucBlock
+                           failedBlock:(void (^)(NSError *error))failedBlock;
 
 @end
 

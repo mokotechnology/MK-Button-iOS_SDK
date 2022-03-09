@@ -78,10 +78,11 @@
             alarmType = MKBXBAdvAlarmType_abnormalInactivity;
         }
         self.alarmType = alarmType;
-        self.trigger = [[content substringWithRange:NSMakeRange(2, 2)] isEqualToString:@"01"];
+        NSString *state = [content substringWithRange:NSMakeRange(2, 2)];
+        NSString *binary = [MKBLEBaseSDKAdopter binaryByhex:state];
+        self.trigger = [[binary substringWithRange:NSMakeRange(6, 1)] isEqualToString:@"1"];
         self.triggerCount = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(4, 4)];
         self.deviceID = [content substringFromIndex:8];
-        self.needPassword = YES;
     }
     return self;
 }
@@ -124,7 +125,6 @@
         [tempMac substringWithRange:NSMakeRange(8, 2)],
         [tempMac substringWithRange:NSMakeRange(10, 2)]];
         self.macAddress = macAddress;
-        self.needPassword = YES;
     }
     return self;
 }

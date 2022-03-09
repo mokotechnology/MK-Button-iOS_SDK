@@ -28,18 +28,21 @@
 }
 
 - (void)discoverServices {
-    NSArray *services = @[[CBUUID UUIDWithString:@"FEE0"],  //custom配置服务
+    NSArray *services = @[[CBUUID UUIDWithString:@"AA00"],  //custom配置服务
                           [CBUUID UUIDWithString:@"180A"]]; //设备信息服务
     [self.peripheral discoverServices:services];
 }
 
 - (void)discoverCharacteristics {
     for (CBService *service in self.peripheral.services) {
-        if ([service.UUID isEqual:[CBUUID UUIDWithString:@"FEE0"]]) {
-            NSArray *list = @[[CBUUID UUIDWithString:@"FEE1"],
-                              [CBUUID UUIDWithString:@"FEE2"],
-                              [CBUUID UUIDWithString:@"FEE3"],
-                              [CBUUID UUIDWithString:@"FEE4"]];
+        if ([service.UUID isEqual:[CBUUID UUIDWithString:@"AA00"]]) {
+            NSArray *list = @[[CBUUID UUIDWithString:@"AA01"],
+                              [CBUUID UUIDWithString:@"AA02"],
+                              [CBUUID UUIDWithString:@"AA03"],
+                              [CBUUID UUIDWithString:@"AA04"],
+                              [CBUUID UUIDWithString:@"AA05"],
+                              [CBUUID UUIDWithString:@"AA06"],
+                              [CBUUID UUIDWithString:@"AA07"]];
             [self.peripheral discoverCharacteristics:list forService:service];
         }else if ([service.UUID isEqual:[CBUUID UUIDWithString:@"180A"]]) {
             NSArray *characteristics = @[[CBUUID UUIDWithString:@"2A24"],

@@ -86,6 +86,19 @@ typedef NS_ENUM(NSInteger, mk_bxb_centralConnectStatus) {
 /// Bluetooth center stops scanning
 - (void)stopScan;
 
+/// Read whether a connected device requires a password.
+/*
+ @{
+ @"state":@"00",            //@"00":Password-free connection   @"01":password connection
+ }
+ */
+/// @param peripheral peripheral
+/// @param sucBlock Success callback
+/// @param failedBlock Failure callback
+- (void)readNeedPasswordWithPeripheral:(nonnull CBPeripheral *)peripheral
+                              sucBlock:(void (^)(NSDictionary *result))sucBlock
+                           failedBlock:(void (^)(NSError *error))failedBlock;
+
 /// Connect device function.
 /// @param peripheral peripheral
 /// @param password Device connection password.No more than 16 characters.

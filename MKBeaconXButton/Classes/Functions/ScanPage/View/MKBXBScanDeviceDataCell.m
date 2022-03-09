@@ -222,7 +222,7 @@ static CGFloat const batteryIconHeight = 25.f;
         return;
     }
     if ([self.delegate respondsToSelector:@selector(mk_bxb_connectPeripheral:)]) {
-        [self.delegate mk_bxb_connectPeripheral:self.dataModel];
+        [self.delegate mk_bxb_connectPeripheral:self.dataModel.peripheral];
     }
 }
 

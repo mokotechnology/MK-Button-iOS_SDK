@@ -47,9 +47,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign)NSTimeInterval lastScanDate;
 
-/// 是否需要密码连接
-@property (nonatomic, assign)BOOL needPassword;
-
 @end
 
 NS_ASSUME_NONNULL_END
