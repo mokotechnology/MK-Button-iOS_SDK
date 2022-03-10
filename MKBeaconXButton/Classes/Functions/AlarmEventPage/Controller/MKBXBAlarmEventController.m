@@ -26,6 +26,8 @@
 
 #import "MKBXBAlarmEventDataModel.h"
 
+#import "MKBXBAlarmDataExportController.h"
+
 @interface MKBXBAlarmEventController ()<UITableViewDelegate,
 UITableViewDataSource,
 MKBXBAlarmSyncTimeViewDelegate,
@@ -120,7 +122,9 @@ MKBXBAlarmEventCountCellDelegate>
         NSDate *date = [NSDate dateWithTimeIntervalSince1970:interval];
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
         [formatter setDateFormat:@"yyyy-MM-dd hh:mm:ss.SSS"];
-        self.dataModel.timestamp = [formatter stringFromDate:date];
+        NSString *tempValue = [formatter stringFromDate:date];
+        NSArray *tempList = [tempValue componentsSeparatedByString:@" "];
+        self.dataModel.timestamp = [NSString stringWithFormat:@"%@T%@Z",tempList[0],tempList[1]];
         [self.headerView updateTimestamp:self.dataModel.timestamp];
     } failedBlock:^(NSError * _Nonnull error) {
         [[MKHudManager share] hide];
@@ -222,18 +226,9 @@ MKBXBAlarmEventCountCellDelegate>
 }
 
 - (void)bxb_alarmEvent_exportButtonPressed:(NSInteger)index {
-    if (index == 0) {
-        //单击
-        return;
-    }
-    if (index == 1) {
-        //双击
-        
-        return;
-    }
-    if (index == 2) {
-        //长按
-    }
+    MKBXBAlarmDataExportController *vc = [[MKBXBAlarmDataExportController alloc] init];
+    vc.pageType = index;
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 #pragma mark - interface

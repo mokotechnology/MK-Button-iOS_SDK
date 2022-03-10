@@ -25,6 +25,9 @@ NSString *const mk_bxb_centralManagerStateChangedNotification = @"mk_bxb_central
 
 NSString *const mk_bxb_deviceDisconnectTypeNotification = @"mk_bxb_deviceDisconnectTypeNotification";
 
+NSString *const mk_bxb_receiveAlarmEventDataNotification = @"mk_bxb_receiveAlarmEventDataNotification";
+
+
 static MKBXBCentralManager *manager = nil;
 static dispatch_once_t onceToken;
 
@@ -147,7 +150,27 @@ static dispatch_once_t onceToken;
         NSLog(@"+++++++++++++++++接收数据出错");
         return;
     }
-    
+    if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA02"]]) {
+        //引起设备断开连接的类型
+        NSString *content = [MKBLEBaseSDKAdopter hexStringFromData:characteristic.value];
+        [[NSNotificationCenter defaultCenter] postNotificationName:mk_bxb_deviceDisconnectTypeNotification
+                                                            object:nil
+                                                          userInfo:@{@"type":[content substringWithRange:NSMakeRange(8, 2)]}];
+        return;
+    }
+    if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA03"]]
+        || [characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA04"]]
+        || [characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA05"]]) {
+        NSString *content = [MKBLEBaseSDKAdopter hexStringFromData:characteristic.value];
+        NSString *timestamp = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(8, 16)];
+        NSString *alarmType = [content substringWithRange:NSMakeRange(24, 2)];
+        [[NSNotificationCenter defaultCenter] postNotificationName:mk_bxb_receiveAlarmEventDataNotification
+                                                            object:nil
+                                                          userInfo:@{@"timestamp":timestamp,
+                                                                     @"alarmType":alarmType,
+                                                                   }];
+        return;
+    }
 }
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(nullable NSError *)error {
     if (error) {
@@ -307,6 +330,30 @@ static dispatch_once_t onceToken;
         return;
     }
     [[MKBLEBaseCentralManager shared] addOperation:operation];
+}
+
+- (BOOL)notifySinglePressEventData:(BOOL)notify {
+    if (self.connectStatus != mk_bxb_centralConnectStatusConnected || self.peripheral == nil || self.peripheral.bxb_singleAlarmData == nil) {
+        return NO;
+    }
+    [self.peripheral setNotifyValue:notify forCharacteristic:self.peripheral.bxb_singleAlarmData];
+    return YES;
+}
+
+- (BOOL)notifyDoublePressEventData:(BOOL)notify {
+    if (self.connectStatus != mk_bxb_centralConnectStatusConnected || self.peripheral == nil || self.peripheral.bxb_doubleAlarmData == nil) {
+        return NO;
+    }
+    [self.peripheral setNotifyValue:notify forCharacteristic:self.peripheral.bxb_doubleAlarmData];
+    return YES;
+}
+
+- (BOOL)notifyLongPressEventData:(BOOL)notify {
+    if (self.connectStatus != mk_bxb_centralConnectStatusConnected || self.peripheral == nil || self.peripheral.bxb_longAlarmData == nil) {
+        return NO;
+    }
+    [self.peripheral setNotifyValue:notify forCharacteristic:self.peripheral.bxb_longAlarmData];
+    return YES;
 }
 
 #pragma mark - password method

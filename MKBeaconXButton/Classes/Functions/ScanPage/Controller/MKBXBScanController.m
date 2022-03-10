@@ -431,7 +431,6 @@ MKBXBTabBarControllerDelegate>
             [[NSUserDefaults standardUserDefaults] setObject:self.passwordField.text forKey:localPasswordKey];
         }
         [[MKHudManager share] hide];
-        [self.view showCentralToast:@"Time sync completed!"];
         [self performSelector:@selector(pushTabBarPage) withObject:nil afterDelay:0.6f];
     } failedBlock:^(NSError * _Nonnull error) {
         [[MKHudManager share] hide];

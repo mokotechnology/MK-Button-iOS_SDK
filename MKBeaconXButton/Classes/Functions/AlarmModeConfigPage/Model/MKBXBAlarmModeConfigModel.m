@@ -66,10 +66,6 @@
 
 - (void)readDataWithSucBlock:(void (^)(void))sucBlock failedBlock:(void (^)(NSError *error))failedBlock {
     dispatch_async(self.readQueue, ^{
-        if (![self configActiveSlot]) {
-            [self operationFailedBlockWithMsg:@"Config Active Slot Error" block:failedBlock];
-            return;
-        }
         if (![self readTriggerChannelAdvParams]) {
             [self operationFailedBlockWithMsg:@"Read Trigger Channel Adv Params Error" block:failedBlock];
             return;
@@ -86,6 +82,12 @@
             [self operationFailedBlockWithMsg:@"Read Device ID Error" block:failedBlock];
             return;
         }
+        if (self.alarmType == 3) {
+            if (![self readAbnormalTime]) {
+                [self operationFailedBlockWithMsg:@"Read Abnormal Time Error" block:failedBlock];
+                return;
+            }
+        }
         moko_dispatch_main_safe(^{
             if (sucBlock) {
                 sucBlock();
@@ -96,8 +98,8 @@
 
 - (void)configDataWithSucBlock:(void (^)(void))sucBlock failedBlock:(void (^)(NSError *error))failedBlock {
     dispatch_async(self.readQueue, ^{
-        if (![self configActiveSlot]) {
-            [self operationFailedBlockWithMsg:@"Config Active Slot Error" block:failedBlock];
+        if (![self validParams]) {
+            [self operationFailedBlockWithMsg:@"Params Error" block:failedBlock];
             return;
         }
         if (![self configTriggerChannelAdvParams]) {
@@ -116,6 +118,12 @@
             [self operationFailedBlockWithMsg:@"Config Device ID Error" block:failedBlock];
             return;
         }
+        if (self.alarmType == 3) {
+            if (![self configAbnormalTime]) {
+                [self operationFailedBlockWithMsg:@"Config Abnormal Time Error" block:failedBlock];
+                return;
+            }
+        }
         moko_dispatch_main_safe(^{
             if (sucBlock) {
                 sucBlock();
@@ -125,21 +133,10 @@
 }
 
 #pragma mark - interface
-- (BOOL)configActiveSlot {
-    __block BOOL success = NO;
-    [MKBXBInterface bxb_configActiveChannel:self.alarmType sucBlock:^{
-        success = YES;
-        dispatch_semaphore_signal(self.semaphore);
-    } failedBlock:^(NSError * _Nonnull error) {
-        dispatch_semaphore_signal(self.semaphore);
-    }];
-    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
-    return success;
-}
 
 - (BOOL)readTriggerChannelAdvParams {
     __block BOOL success = NO;
-    [MKBXBInterface bxb_readTriggerChannelAdvParamsWithSucBlock:^(id  _Nonnull returnData) {
+    [MKBXBInterface bxb_readTriggerChannelAdvParams:self.alarmType sucBlock:^(id  _Nonnull returnData) {
         success = YES;
         self.advIsOn = [returnData[@"result"][@"isOn"] boolValue];
         self.rangingData = [returnData[@"result"][@"rssi"] integerValue];
@@ -173,7 +170,7 @@
 
 - (BOOL)readChannelTriggerParams {
     __block BOOL success = NO;
-    [MKBXBInterface bxb_readChannelTriggerParamsWithSucBlock:^(id  _Nonnull returnData) {
+    [MKBXBInterface bxb_readChannelTriggerParams:self.alarmType sucBlock:^(id  _Nonnull returnData) {
         success = YES;
         self.alarmMode = [returnData[@"result"][@"alarm"] boolValue];
         self.alarmMode_advTime = returnData[@"result"][@"advTime"];
@@ -209,7 +206,7 @@
 
 - (BOOL)readStayAdvertisingBeforeTriggered {
     __block BOOL success = NO;
-    [MKBXBInterface bxb_readStayAdvertisingBeforeTriggeredWithSucBlock:^(id  _Nonnull returnData) {
+    [MKBXBInterface bxb_readStayAdvertisingBeforeTriggered:self.alarmType sucBlock:^(id  _Nonnull returnData) {
         success = YES;
         self.stayAdv = [returnData[@"result"][@"isOn"] boolValue];
         dispatch_semaphore_signal(self.semaphore);
@@ -222,7 +219,7 @@
 
 - (BOOL)configStayAdvertisingBeforeTriggered {
     __block BOOL success = NO;
-    [MKBXBInterface bxb_configStayAdvertisingBeforeTriggered:self.stayAdv sucBlock:^{
+    [MKBXBInterface bxb_configStayAdvertisingBeforeTriggered:self.stayAdv isOn:self.stayAdv sucBlock:^{
         success = YES;
         dispatch_semaphore_signal(self.semaphore);
     } failedBlock:^(NSError * _Nonnull error) {
@@ -248,6 +245,31 @@
 - (BOOL)configDeviceID {
     __block BOOL success = NO;
     [MKBXBInterface bxb_configDeviceID:self.deviceID sucBlock:^{
+        success = YES;
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+- (BOOL)readAbnormalTime {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_readAbnormalInactivityTimeWithSucBlock:^(id  _Nonnull returnData) {
+        success = YES;
+        self.abnormalTime = returnData[@"result"][@"time"];
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+- (BOOL)configAbnormalTime {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_configAbnormalInactivityTime:[self.abnormalTime integerValue] sucBlock:^{
         success = YES;
         dispatch_semaphore_signal(self.semaphore);
     } failedBlock:^(NSError * _Nonnull error) {
@@ -296,6 +318,27 @@
         return 8;
     }
     return 0;
+}
+
+- (BOOL)validParams {
+    if (!ValidStr(self.deviceID) || (self.deviceID.length % 2 != 0) || self.deviceID.length > 12) {
+        return NO;
+    }
+    if (!ValidStr(self.advInterval) || [self.advInterval integerValue] < 1 || [self.advInterval integerValue] > 500) {
+        return NO;
+    }
+    if (!ValidStr(self.alarmMode_advTime) || [self.alarmMode_advTime integerValue] < 1 || [self.alarmMode_advTime integerValue] > 65535) {
+        return NO;
+    }
+    if (!ValidStr(self.alarmMode_advInterval) || [self.alarmMode_advInterval integerValue] < 1 || [self.alarmMode_advInterval integerValue] > 500) {
+        return NO;
+    }
+    if (self.alarmType == 3) {
+        if (!ValidStr(self.abnormalTime) || [self.abnormalTime integerValue] < 1 || [self.abnormalTime integerValue] > 65535) {
+            return NO;
+        }
+    }
+    return YES;
 }
 
 #pragma mark - getter

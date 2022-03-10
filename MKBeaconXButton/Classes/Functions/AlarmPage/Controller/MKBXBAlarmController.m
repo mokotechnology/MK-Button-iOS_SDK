@@ -64,7 +64,12 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     MKBXBAlarmModeConfigController *vc = [[MKBXBAlarmModeConfigController alloc] init];
-    vc.pageType = indexPath.row;
+    if (indexPath.section == 1) {
+        vc.pageType = MKBXBAlarmModeConfigControllerType_abnormal;
+    }else {
+        vc.pageType = indexPath.row;
+    }
+    
     [self.navigationController pushViewController:vc animated:YES];
 }
 

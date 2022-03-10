@@ -64,6 +64,7 @@
             //LED/LED+Vibration/LED+Buzzer
             if (![self configLEDParams]) {
                 [self operationFailedBlockWithMsg:@"Config LED Params Error" block:failedBlock];
+                return;
             }
         }
         if (self.dismissAlarmNotiType == 2 || self.dismissAlarmNotiType == 4) {
@@ -254,6 +255,7 @@
     if (!ValidStr(self.vibratingInterval) || [self.vibratingInterval integerValue] < 1 || [self.vibratingInterval integerValue] > 100) {
         return NO;
     }
+    return YES;
 }
 
 - (BOOL)validBuzzerParams {

@@ -24,9 +24,19 @@ extern NSString *const mk_bxb_peripheralConnectStateChangedNotification;
 extern NSString *const mk_bxb_centralManagerStateChangedNotification;
 
 /*
- After connecting the device, if no password is entered within one minute, it returns 0x01. After successful password change, it returns 0x02.The device has no data communication for three consecutive minutes, it returns 0x03.The device restart ,it returns 0x04.
+ After connecting the device, if no password is entered within one minute, it returns 0x01. After successful password change, it returns 0x02.The device reset ,it returns 0x03.Power Off the device ,it returns 0x04.
  */
 extern NSString *const mk_bxb_deviceDisconnectTypeNotification;
+
+/*
+ The current trigger record returned by the device.
+        @{
+    @"timestamp":timestamp,         //Record trigger timestamp (accurate to millisecond level).
+     @"alarmType":alarmType,        //Type of trigger.(00:Single press event  01:Double press event 02:Long press event )
+ }
+ 
+ */
+extern NSString *const mk_bxb_receiveAlarmEventDataNotification;
 
 typedef NS_ENUM(NSInteger, mk_bxb_centralManagerStatus) {
     mk_bxb_centralManagerStatusUnable,                           //不可用
@@ -140,6 +150,18 @@ typedef NS_ENUM(NSInteger, mk_bxb_centralConnectStatus) {
                characteristic:(CBCharacteristic *)characteristic
                  successBlock:(void (^)(id returnData))successBlock
                  failureBlock:(void (^)(NSError *error))failureBlock;
+
+/// Alarm event data(Single press event.).
+/// @param notify notify
+- (BOOL)notifySinglePressEventData:(BOOL)notify;
+
+/// Alarm event data(Double press event.).
+/// @param notify notify
+- (BOOL)notifyDoublePressEventData:(BOOL)notify;
+
+/// Alarm event data(Long press event.).
+/// @param notify notify
+- (BOOL)notifyLongPressEventData:(BOOL)notify;
 
 @end
 

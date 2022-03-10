@@ -57,6 +57,10 @@
             [self operationFailedMsg:dic[@"msg"] completeBlock:failedBlock];
             return ;
         }
+//        if (![self readDeviceType]) {
+//            [self operationFailedMsg:@"Read Device Type Error" completeBlock:failedBlock];
+//            return;
+//        }
         if (![self readSensorStatus]) {
             [self operationFailedMsg:@"Read Sensor Error" completeBlock:failedBlock];
             return;
@@ -104,6 +108,19 @@
     }];
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     return connectResult;
+}
+
+- (BOOL)readDeviceType {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_readDeviceTypeWithSucBlock:^(id  _Nonnull returnData) {
+        success = YES;
+        self.deviceType = returnData[@"result"][@"deviceType"];
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
 }
 
 - (BOOL)readSensorStatus {

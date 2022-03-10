@@ -178,7 +178,7 @@
                                         sucBlock:(void (^)(void))sucBlock
                                      failedBlock:(void (^)(NSError *error))failedBlock {
     NSString *type = [MKBLEBaseSDKAdopter fetchHexValue:channelType byteLen:1];
-    NSString *commandString = [NSString stringWithFormat:@"%@",@"ea013602",type,(isOn ? @"01" : @"00")];
+    NSString *commandString = [NSString stringWithFormat:@"%@%@%@",@"ea013602",type,(isOn ? @"01" : @"00")];
     [self configDataWithTaskID:mk_bxb_taskConfigStayAdvertisingBeforeTriggeredOperation
                           data:commandString
                       sucBlock:sucBlock

@@ -13,6 +13,8 @@
 
 #import "MKAlertController.h"
 
+#import "MKBLEBaseLogManager.h"
+
 #import "MKBXBCentralManager.h"
 
 #import "MKBXBAlarmController.h"
@@ -24,9 +26,9 @@
 /// 当触发
 /// 01:表示连接成功后，1分钟内没有通过密码验证（未输入密码，或者连续输入密码错误）认为超时，返回结果， 然后断开连接
 /// 02:修改密码成功后，返回结果，断开连接
-/// 03:连续三分钟设备没有数据通信断开，返回结果，断开连接
-/// 04:重启设备，就不需要显示断开连接的弹窗了，只需要显示对应的弹窗
-/// 05:恢复出厂设置
+/// 03:恢复出厂设置
+/// 04:关机
+
 @property (nonatomic, assign)BOOL disconnectType;
 
 @end
@@ -36,6 +38,9 @@
 - (void)dealloc {
     NSLog(@"MKBXBTabBarController销毁");
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [MKBLEBaseLogManager deleteLogWithFileName:@"/SingleEventDatas"];
+    [MKBLEBaseLogManager deleteLogWithFileName:@"/DoubleEventDatas"];
+    [MKBLEBaseLogManager deleteLogWithFileName:@"/LongEventDatas"];
 }
 
 - (void)viewDidDisappear:(BOOL)animated{
@@ -98,26 +103,22 @@
 - (void)disconnectTypeNotification:(NSNotification *)note {
     NSString *type = note.userInfo[@"type"];
     //02:修改密码成功后，返回结果，断开连接
-    //03:连续两分钟设备没有数据通信断开，返回结果，断开连接
-    //04:重启设备
-    //05:恢复出厂设置
+    //03:恢复出厂设置
+    //04:关机
     self.disconnectType = YES;
     if ([type isEqualToString:@"02"]) {
         [self showAlertWithMsg:@"Password changed successfully! Please reconnect the device." title:@"Change Password"];
         return;
     }
     if ([type isEqualToString:@"03"]) {
-        [self showAlertWithMsg:@"No data communication for 3 minutes, the device is disconnected." title:@""];
+        [self showAlertWithMsg:@"Beacon is disconnected." title:@"Reset success!"];
         return;
     }
     if ([type isEqualToString:@"04"]) {
-        [self showAlertWithMsg:@"Reboot successfully!Please reconnect the device." title:@"Dismiss"];
-        return;
-    }
-    if ([type isEqualToString:@"05"]) {
         [self showAlertWithMsg:@"Factory reset successfully!Please reconnect the device." title:@"Factory Reset"];
         return;
     }
+    
 }
 
 - (void)centralManagerStateChanged{

@@ -56,7 +56,9 @@
         NSDate *date = [NSDate dateWithTimeIntervalSince1970:([returnData[@"result"][@"timestamp"] longLongValue] / 1000.0)];
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
         [formatter setDateFormat:@"yyyy-MM-dd hh:mm:ss.SSS"];
-        self.timestamp = [formatter stringFromDate:date];
+        NSString *tempValue = [formatter stringFromDate:date];
+        NSArray *tempList = [tempValue componentsSeparatedByString:@" "];
+        self.timestamp = [NSString stringWithFormat:@"%@T%@Z",tempList[0],tempList[1]];
         dispatch_semaphore_signal(self.semaphore);
     } failedBlock:^(NSError * _Nonnull error) {
         dispatch_semaphore_signal(self.semaphore);
