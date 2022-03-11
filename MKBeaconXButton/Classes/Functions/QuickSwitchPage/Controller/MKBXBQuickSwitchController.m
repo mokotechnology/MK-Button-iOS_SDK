@@ -74,12 +74,6 @@ MKBXQuickSwitchCellDelegate>
 
 #pragma mark - MKBXQuickSwitchCellDelegate
 - (void)mk_bx_quickSwitchStatusChanged:(BOOL)isOn index:(NSInteger)index {
-    if (index == 4) {
-        //回应包开关
-        [self configScanPacket:isOn];
-        return;
-    }
-    /*
     if (index == 0) {
         //可连接性
         [self configConnectEnable:isOn];
@@ -101,26 +95,17 @@ MKBXQuickSwitchCellDelegate>
         return;
     }
     if (index == 4) {
-        //设置LED触发
-        [self configTriggerLEDNotification:isOn];
+        //回应包开关
+        [self configScanPacket:isOn];
         return;
-    }*/
-}
-- (void)configScanPacket:(BOOL)isOn {
-    [MKBXBInterface bxb_configScanResponsePacket:isOn sucBlock:^ {
-        [[MKHudManager share] hide];
-        self.dataModel.scanPacket = isOn;
-        MKBXQuickSwitchCellModel *cellModel = self.dataList[4];
-        cellModel.isOn = isOn;
-        [self.view showCentralToast:@"Success!"];
-    } failedBlock:^(NSError *error) {
-        [[MKHudManager share] hide];
-        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
-        [self.collectionView reloadData];
-    }];
+    }
+    if (index == 5) {
+        //按键消警
+        [self configDismissByButton:isOn];
+        return;
+    }
 }
 
-/*
 #pragma mark - 设置参数部分
 
 #pragma mark - 设置可连接状态
@@ -154,12 +139,13 @@ MKBXQuickSwitchCellDelegate>
     [[MKHudManager share] showHUDWithTitle:@"Setting..."
                                      inView:self.view
                               isPenetration:NO];
-    [MKBXBInterface bxb_configConnectStatus:connect sucBlock:^(id returnData) {
+    [MKBXBInterface bxb_configConnectable:connect sucBlock:^{
         [[MKHudManager share] hide];
+        self.dataModel.connectable = connect;
         MKBXQuickSwitchCellModel *cellModel = self.dataList[0];
         cellModel.isOn = connect;
         [self.view showCentralToast:@"Success!"];
-    } failedBlock:^(NSError *error) {
+    } failedBlock:^(NSError * _Nonnull error) {
         [[MKHudManager share] hide];
         [self.view showCentralToast:error.userInfo[@"errorInfo"]];
         [self.collectionView reloadData];
@@ -197,12 +183,13 @@ MKBXQuickSwitchCellDelegate>
     [[MKHudManager share] showHUDWithTitle:@"Setting..."
                                      inView:self.view
                               isPenetration:NO];
-    [MKBXBInterface bxb_configButtonPowerStatus:isOn sucBlock:^(id returnData) {
+    [MKBXBInterface bxb_configTurnOffDeviceByButtonStatus:isOn sucBlock:^{
         [[MKHudManager share] hide];
+        self.dataModel.turnOffByButton = isOn;
         MKBXQuickSwitchCellModel *cellModel = self.dataList[1];
         cellModel.isOn = isOn;
         [self.view showCentralToast:@"Success!"];
-    } failedBlock:^(NSError *error) {
+    } failedBlock:^(NSError * _Nonnull error) {
         [[MKHudManager share] hide];
         [self.view showCentralToast:error.userInfo[@"errorInfo"]];
         [self.collectionView reloadData];
@@ -212,7 +199,7 @@ MKBXQuickSwitchCellDelegate>
 #pragma mark - 设置设备是否免密码登录
 - (void)configPasswordVerification:(BOOL)isOn {
     if (isOn) {
-        [self commandForLockState:isOn];
+        [self commandForPasswordVerification:isOn];
         return;
     }
     NSString *msg = @"If Password verification is disabled, it will not need password to connect the Beacon.";
@@ -228,20 +215,20 @@ MKBXQuickSwitchCellDelegate>
     [alertView addAction:cancelAction];
     UIAlertAction *moreAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         @strongify(self);
-        [self commandForLockState:isOn];
+        [self commandForPasswordVerification:isOn];
     }];
     [alertView addAction:moreAction];
     
     [self presentViewController:alertView animated:YES completion:nil];
 }
 
-- (void)commandForLockState:(BOOL)isOn{
+- (void)commandForPasswordVerification:(BOOL)isOn{
     [[MKHudManager share] showHUDWithTitle:@"Setting..." inView:self.view isPenetration:NO];
-    [MKBXBInterface bxb_configLockState:(isOn ? mk_bxb_lockStateOpen : mk_bxb_lockStateUnlockAutoMaticRelockDisabled) sucBlock:^(id  _Nonnull returnData) {
+    [MKBXBInterface bxb_configPasswordVerification:isOn sucBlock:^{
         [[MKHudManager share] hide];
         MKBXQuickSwitchCellModel *cellModel = self.dataList[2];
         cellModel.isOn = isOn;
-        [MKBXBConnectManager shared].passwordVerification = isOn;
+        [MKBXBConnectManager shared].needPassword = isOn;
         [self.view showCentralToast:@"Success!"];
     } failedBlock:^(NSError * _Nonnull error) {
         [[MKHudManager share] hide];
@@ -281,25 +268,27 @@ MKBXQuickSwitchCellDelegate>
     [[MKHudManager share] showHUDWithTitle:@"Setting..."
                                      inView:self.view
                               isPenetration:NO];
-    [MKBXBInterface bxb_configResetBeaconByButtonStatus:isOn sucBlock:^(id returnData) {
+    [MKBXBInterface bxb_configResetDeviceByButtonStatus:isOn sucBlock:^{
         [[MKHudManager share] hide];
+        self.dataModel.resetByButton = isOn;
         MKBXQuickSwitchCellModel *cellModel = self.dataList[3];
         cellModel.isOn = isOn;
         [self.view showCentralToast:@"Success!"];
-    } failedBlock:^(NSError *error) {
+    } failedBlock:^(NSError * _Nonnull error) {
         [[MKHudManager share] hide];
         [self.view showCentralToast:error.userInfo[@"errorInfo"]];
         [self.collectionView reloadData];
     }];
 }
 
-#pragma mark - 设置LED触发功能
-- (void)configTriggerLEDNotification:(BOOL)isOn {
+#pragma mark - 设置回应包
+- (void)configScanPacket:(BOOL)isOn {
     [[MKHudManager share] showHUDWithTitle:@"Setting..."
                                      inView:self.view
                               isPenetration:NO];
-    [MKBXBInterface bxb_configLEDTriggerStatus:isOn sucBlock:^(id returnData) {
+    [MKBXBInterface bxb_configScanResponsePacket:isOn sucBlock:^ {
         [[MKHudManager share] hide];
+        self.dataModel.scanPacket = isOn;
         MKBXQuickSwitchCellModel *cellModel = self.dataList[4];
         cellModel.isOn = isOn;
         [self.view showCentralToast:@"Success!"];
@@ -309,7 +298,51 @@ MKBXQuickSwitchCellDelegate>
         [self.collectionView reloadData];
     }];
 }
-*/
+
+#pragma mark - 配置按键消警
+- (void)configDismissByButton:(BOOL)isOn {
+    if (isOn) {
+        [self setDismissByButtonToDevice:isOn];
+        return;
+    }
+    //禁用按键消警
+    NSString *msg = @"If this function is disabled, you cannot dismiss alarm by button.";
+    MKAlertController *alertView = [MKAlertController alertControllerWithTitle:@"Warning!"
+                                                                       message:msg
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+    alertView.notificationName = @"mk_bxb_needDismissAlert";
+    @weakify(self);
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        @strongify(self);
+        [self.collectionView reloadData];
+    }];
+    [alertView addAction:cancelAction];
+    UIAlertAction *moreAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        @strongify(self);
+        [self setDismissByButtonToDevice:isOn];
+    }];
+    [alertView addAction:moreAction];
+    
+    [self presentViewController:alertView animated:YES completion:nil];
+}
+
+- (void)setDismissByButtonToDevice:(BOOL)isOn {
+    [[MKHudManager share] showHUDWithTitle:@"Setting..."
+                                     inView:self.view
+                              isPenetration:NO];
+    [MKBXBInterface bxb_configDismissAlarmByButton:isOn sucBlock:^{
+        [[MKHudManager share] hide];
+        self.dataModel.dismiss = isOn;
+        MKBXQuickSwitchCellModel *cellModel = self.dataList[5];
+        cellModel.isOn = isOn;
+        [self.view showCentralToast:@"Success!"];
+    } failedBlock:^(NSError * _Nonnull error) {
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
+        [self.collectionView reloadData];
+    }];
+}
+
 #pragma mark - 读取数据
 - (void)readDataFromDevice {
     [[MKHudManager share] showHUDWithTitle:@"Reading..." inView:self.view isPenetration:NO];
@@ -360,7 +393,7 @@ MKBXQuickSwitchCellDelegate>
     MKBXQuickSwitchCellModel *cellModel6 = [[MKBXQuickSwitchCellModel alloc] init];
     cellModel6.index = 5;
     cellModel6.titleMsg = @"Dismiss alarm by button";
-    cellModel6.isOn = self.dataModel.scanPacket;
+    cellModel6.isOn = self.dataModel.dismiss;
     [self.dataList addObject:cellModel6];
         
     [self.collectionView reloadData];

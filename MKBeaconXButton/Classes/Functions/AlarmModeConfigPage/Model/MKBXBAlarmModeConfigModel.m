@@ -219,7 +219,7 @@
 
 - (BOOL)configStayAdvertisingBeforeTriggered {
     __block BOOL success = NO;
-    [MKBXBInterface bxb_configStayAdvertisingBeforeTriggered:self.stayAdv isOn:self.stayAdv sucBlock:^{
+    [MKBXBInterface bxb_configStayAdvertisingBeforeTriggered:self.alarmType isOn:self.stayAdv sucBlock:^{
         success = YES;
         dispatch_semaphore_signal(self.semaphore);
     } failedBlock:^(NSError * _Nonnull error) {

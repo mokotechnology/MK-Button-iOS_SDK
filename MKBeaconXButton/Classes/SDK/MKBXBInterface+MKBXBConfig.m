@@ -305,7 +305,7 @@
     }
     NSString *time = [MKBLEBaseSDKAdopter fetchHexValue:blinkingTime byteLen:2];
     NSString *interval = [MKBLEBaseSDKAdopter fetchHexValue:(blinkingInterval * 100) byteLen:2];
-    NSString *commandString = [NSString stringWithFormat:@"%@%@%@%@",@"ea013e04",time,interval];
+    NSString *commandString = [NSString stringWithFormat:@"%@%@%@",@"ea013e04",time,interval];
     [self configDataWithTaskID:mk_bxb_taskConfigRemoteReminderLEDNotiParamsOperation
                           data:commandString
                       sucBlock:sucBlock
@@ -322,7 +322,7 @@
     }
     NSString *time = [MKBLEBaseSDKAdopter fetchHexValue:vibratingTime byteLen:2];
     NSString *interval = [MKBLEBaseSDKAdopter fetchHexValue:(vibratingInterval * 100) byteLen:2];
-    NSString *commandString = [NSString stringWithFormat:@"%@%@%@%@",@"ea013f04",time,interval];
+    NSString *commandString = [NSString stringWithFormat:@"%@%@%@",@"ea013f04",time,interval];
     [self configDataWithTaskID:mk_bxb_taskConfigRemoteReminderVibrationNotiParamsOperation
                           data:commandString
                       sucBlock:sucBlock
@@ -339,7 +339,7 @@
     }
     NSString *time = [MKBLEBaseSDKAdopter fetchHexValue:ringingTime byteLen:2];
     NSString *interval = [MKBLEBaseSDKAdopter fetchHexValue:(ringingInterval * 100) byteLen:2];
-    NSString *commandString = [NSString stringWithFormat:@"%@%@%@%@",@"ea014004",time,interval];
+    NSString *commandString = [NSString stringWithFormat:@"%@%@%@",@"ea014004",time,interval];
     [self configDataWithTaskID:mk_bxb_taskConfigRemoteReminderBuzzerNotiParamsOperation
                           data:commandString
                       sucBlock:sucBlock

@@ -20,7 +20,9 @@
 #import "MKTableSectionLineHeader.h"
 #import "MKTextFieldCell.h"
 
-#import "MKBXBDismissConfigModel.h"
+#import "MKBXBInterface+MKBXBConfig.h"
+
+#import "MKBXBRemoteReminderModel.h"
 
 #import "MKBXBRemoteReminderCell.h"
 
@@ -45,7 +47,7 @@ MKBXBRemoteReminderCellDelegate>
 
 @property (nonatomic, strong)NSMutableArray *headerList;
 
-@property (nonatomic, strong)MKBXBDismissConfigModel *dataModel;
+@property (nonatomic, strong)MKBXBRemoteReminderModel *dataModel;
 
 @end
 
@@ -64,7 +66,7 @@ MKBXBRemoteReminderCellDelegate>
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self loadSubViews];
-    [self loadSectionDatas];
+    [self readDataFromDevice];
 }
 
 #pragma mark - UITableViewDelegate
@@ -182,7 +184,18 @@ MKBXBRemoteReminderCellDelegate>
 
 #pragma mark - MKBXBRemoteReminderCellDelegate
 - (void)bxb_remindButtonPressed:(NSInteger)index {
-    
+    if (index == 0) {
+        [self reminderLED];
+        return;
+    }
+    if (index == 1) {
+        [self reminderVibration];
+        return;
+    }
+    if (index == 2) {
+        [self reminderBuzzer];
+        return;
+    }
 }
 
 #pragma mark - loadCellDatas
@@ -213,6 +226,87 @@ MKBXBRemoteReminderCellDelegate>
         return 10.f;
     }
     return 0;
+}
+
+#pragma mark - interface
+- (void)readDataFromDevice {
+    [[MKHudManager share] showHUDWithTitle:@"Reading..." inView:self.view isPenetration:NO];
+    @weakify(self);
+    [self.dataModel readDataWithSucBlock:^{
+        @strongify(self);
+        [[MKHudManager share] hide];
+        [self loadSectionDatas];
+    } failedBlock:^(NSError * _Nonnull error) {
+        @strongify(self);
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
+    }];
+}
+
+- (void)reminderLED {
+    if (!ValidStr(self.dataModel.blinkingTime) || [self.dataModel.blinkingTime integerValue] < 1 || [self.dataModel.blinkingTime integerValue] > 6000) {
+        [self.view showCentralToast:@"Blink Time Error"];
+        return ;
+    }
+    if (!ValidStr(self.dataModel.blinkingInterval) || [self.dataModel.blinkingInterval integerValue] < 1 || [self.dataModel.blinkingInterval integerValue] > 100) {
+        [self.view showCentralToast:@"Blink Interval Error"];
+        return ;
+    }
+    [[MKHudManager share] showHUDWithTitle:@"Config..." inView:self.view isPenetration:NO];
+    [MKBXBInterface bxb_configRemoteReminderLEDNotiParams:[self.dataModel.blinkingTime integerValue]
+                                         blinkingInterval:[self.dataModel.blinkingInterval integerValue]
+                                                 sucBlock:^{
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:@"Success"];
+    }
+                                              failedBlock:^(NSError * _Nonnull error) {
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
+    }];
+}
+
+- (void)reminderVibration {
+    if (!ValidStr(self.dataModel.vibratingTime) || [self.dataModel.vibratingTime integerValue] < 1 || [self.dataModel.vibratingTime integerValue] > 6000) {
+        [self.view showCentralToast:@"Vibrating Time Error"];
+        return ;
+    }
+    if (!ValidStr(self.dataModel.vibratingInterval) || [self.dataModel.vibratingInterval integerValue] < 1 || [self.dataModel.vibratingInterval integerValue] > 100) {
+        [self.view showCentralToast:@"Vibrating Interval Error"];
+        return ;
+    }
+    [[MKHudManager share] showHUDWithTitle:@"Config..." inView:self.view isPenetration:NO];
+    [MKBXBInterface bxb_configRemoteReminderVibrationNotiParams:[self.dataModel.vibratingTime integerValue]
+                                              vibratingInterval:[self.dataModel.vibratingInterval integerValue]
+                                                       sucBlock:^{
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:@"Success"];
+    }
+                                                    failedBlock:^(NSError * _Nonnull error) {
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
+    }];
+}
+
+- (void)reminderBuzzer {
+    if (!ValidStr(self.dataModel.ringingTime) || [self.dataModel.ringingTime integerValue] < 1 || [self.dataModel.ringingTime integerValue] > 6000) {
+        [self.view showCentralToast:@"Ringing Time Error"];
+        return ;
+    }
+    if (!ValidStr(self.dataModel.ringingInterval) || [self.dataModel.ringingInterval integerValue] < 1 || [self.dataModel.ringingInterval integerValue] > 100) {
+        [self.view showCentralToast:@"Ringing Interval Error"];
+        return ;
+    }
+    [[MKHudManager share] showHUDWithTitle:@"Config..." inView:self.view isPenetration:NO];
+    [MKBXBInterface bxb_configRemoteReminderBuzzerNotiParams:[self.dataModel.ringingTime integerValue]
+                                             ringingInterval:[self.dataModel.ringingInterval integerValue]
+                                                    sucBlock:^{
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:@"Success"];
+    }
+                                                 failedBlock:^(NSError * _Nonnull error) {
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
+    }];
 }
 
 #pragma mark - loadSectionDatas
@@ -253,11 +347,11 @@ MKBXBRemoteReminderCellDelegate>
     MKTextFieldCellModel *cellModel2 = [[MKTextFieldCellModel alloc] init];
     cellModel2.index = 1;
     cellModel2.msg = @"Blinking interval";
-    cellModel2.textPlaceholder = @"100~10000";
+    cellModel2.textPlaceholder = @"1~100";
     cellModel2.textFieldValue = self.dataModel.blinkingInterval;
     cellModel2.textFieldType = mk_realNumberOnly;
-    cellModel2.unit = @"ms";
-    cellModel2.maxLength = 5;
+    cellModel2.unit = @"x100ms";
+    cellModel2.maxLength = 3;
     [self.section1List addObject:cellModel2];
 }
 
@@ -282,11 +376,11 @@ MKBXBRemoteReminderCellDelegate>
     MKTextFieldCellModel *cellModel2 = [[MKTextFieldCellModel alloc] init];
     cellModel2.index = 3;
     cellModel2.msg = @"Vibrating interval";
-    cellModel2.textPlaceholder = @"100~10000";
+    cellModel2.textPlaceholder = @"1~100";
     cellModel2.textFieldValue = self.dataModel.vibratingInterval;
     cellModel2.textFieldType = mk_realNumberOnly;
-    cellModel2.unit = @"ms";
-    cellModel2.maxLength = 5;
+    cellModel2.unit = @"x100ms";
+    cellModel2.maxLength = 3;
     [self.section3List addObject:cellModel2];
 }
 - (void)loadSection4Datas {
@@ -298,7 +392,7 @@ MKBXBRemoteReminderCellDelegate>
 
 - (void)loadSection5Datas {
     MKTextFieldCellModel *cellModel1 = [[MKTextFieldCellModel alloc] init];
-    cellModel1.index = 2;
+    cellModel1.index = 4;
     cellModel1.msg = @"Ringing time";
     cellModel1.textPlaceholder = @"1~6000";
     cellModel1.textFieldValue = self.dataModel.ringingTime;
@@ -308,13 +402,13 @@ MKBXBRemoteReminderCellDelegate>
     [self.section5List addObject:cellModel1];
     
     MKTextFieldCellModel *cellModel2 = [[MKTextFieldCellModel alloc] init];
-    cellModel2.index = 3;
+    cellModel2.index = 5;
     cellModel2.msg = @"Ringing interval";
-    cellModel2.textPlaceholder = @"100~10000";
+    cellModel2.textPlaceholder = @"1~100";
     cellModel2.textFieldValue = self.dataModel.ringingInterval;
     cellModel2.textFieldType = mk_realNumberOnly;
-    cellModel2.unit = @"ms";
-    cellModel2.maxLength = 5;
+    cellModel2.unit = @"x100ms";
+    cellModel2.maxLength = 3;
     [self.section5List addObject:cellModel2];
 }
 
@@ -392,9 +486,9 @@ MKBXBRemoteReminderCellDelegate>
     return _headerList;
 }
 
-- (MKBXBDismissConfigModel *)dataModel {
+- (MKBXBRemoteReminderModel *)dataModel {
     if (!_dataModel) {
-        _dataModel = [[MKBXBDismissConfigModel alloc] init];
+        _dataModel = [[MKBXBRemoteReminderModel alloc] init];
     }
     return _dataModel;
 }

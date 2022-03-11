@@ -38,6 +38,8 @@ extern NSString *const mk_bxb_deviceDisconnectTypeNotification;
  */
 extern NSString *const mk_bxb_receiveAlarmEventDataNotification;
 
+extern NSString *const mk_bxb_receiveThreeAxisDataNotification;
+
 typedef NS_ENUM(NSInteger, mk_bxb_centralManagerStatus) {
     mk_bxb_centralManagerStatusUnable,                           //不可用
     mk_bxb_centralManagerStatusEnable,                           //可用状态
@@ -54,8 +56,8 @@ typedef NS_ENUM(NSInteger, mk_bxb_centralConnectStatus) {
 @protocol mk_bxb_centralManagerScanDelegate <NSObject>
 
 /// Scan to new device.
-/// @param advModel device
-- (void)mk_bxb_receiveAdvData:(MKBXBBaseAdvModel *)advModel;
+/// @param deviceList deviceList
+- (void)mk_bxb_receiveAdvData:(NSArray <MKBXBBaseAdvModel *>*)deviceList;
 
 @optional
 
@@ -162,6 +164,10 @@ typedef NS_ENUM(NSInteger, mk_bxb_centralConnectStatus) {
 /// Alarm event data(Long press event.).
 /// @param notify notify
 - (BOOL)notifyLongPressEventData:(BOOL)notify;
+
+/// Monitor three-axis accelerometer data.
+/// @param notify notify
+- (BOOL)notifyThreeAxisData:(BOOL)notify;
 
 @end
 

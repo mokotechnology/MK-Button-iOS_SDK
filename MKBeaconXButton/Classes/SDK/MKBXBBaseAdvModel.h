@@ -53,9 +53,9 @@ typedef NS_ENUM(NSInteger, MKBXBAdvAlarmType) {
 
 @property (nonatomic, copy)NSString *deviceName;
 
-+ (MKBXBBaseAdvModel *)parseAdvData:(NSDictionary *)advData
-                         peripheral:(CBPeripheral *)peripheral
-                               RSSI:(NSNumber *)RSSI;
++ (NSArray <MKBXBBaseAdvModel *>*)parseAdvData:(NSDictionary *)advData
+                                    peripheral:(CBPeripheral *)peripheral
+                                          RSSI:(NSNumber *)RSSI;
 
 @end
 

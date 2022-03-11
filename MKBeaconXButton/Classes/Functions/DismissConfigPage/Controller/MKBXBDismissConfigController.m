@@ -354,11 +354,11 @@ MKBXBNotificationTypePickerViewDelegate>
     MKTextFieldCellModel *cellModel2 = [[MKTextFieldCellModel alloc] init];
     cellModel2.index = 1;
     cellModel2.msg = @"Blinking interval";
-    cellModel2.textPlaceholder = @"100~10000";
+    cellModel2.textPlaceholder = @"1~100";
     cellModel2.textFieldValue = self.dataModel.blinkingInterval;
     cellModel2.textFieldType = mk_realNumberOnly;
-    cellModel2.unit = @"ms";
-    cellModel2.maxLength = 5;
+    cellModel2.unit = @"x100ms";
+    cellModel2.maxLength = 3;
     [self.section1List addObject:cellModel2];
 }
 
@@ -382,11 +382,11 @@ MKBXBNotificationTypePickerViewDelegate>
     MKTextFieldCellModel *cellModel2 = [[MKTextFieldCellModel alloc] init];
     cellModel2.index = 3;
     cellModel2.msg = @"Vibrating interval";
-    cellModel2.textPlaceholder = @"100~10000";
+    cellModel2.textPlaceholder = @"1~100";
     cellModel2.textFieldValue = self.dataModel.vibratingInterval;
     cellModel2.textFieldType = mk_realNumberOnly;
-    cellModel2.unit = @"ms";
-    cellModel2.maxLength = 5;
+    cellModel2.unit = @"x100ms";
+    cellModel2.maxLength = 3;
     [self.section3List addObject:cellModel2];
 }
 - (void)loadSection4Datas {
@@ -397,7 +397,7 @@ MKBXBNotificationTypePickerViewDelegate>
 
 - (void)loadSection5Datas {
     MKTextFieldCellModel *cellModel1 = [[MKTextFieldCellModel alloc] init];
-    cellModel1.index = 2;
+    cellModel1.index = 4;
     cellModel1.msg = @"Ringing time";
     cellModel1.textPlaceholder = @"1~6000";
     cellModel1.textFieldValue = self.dataModel.ringingTime;
@@ -407,13 +407,13 @@ MKBXBNotificationTypePickerViewDelegate>
     [self.section5List addObject:cellModel1];
     
     MKTextFieldCellModel *cellModel2 = [[MKTextFieldCellModel alloc] init];
-    cellModel2.index = 3;
+    cellModel2.index = 5;
     cellModel2.msg = @"Ringing interval";
-    cellModel2.textPlaceholder = @"100~10000";
+    cellModel2.textPlaceholder = @"1~100";
     cellModel2.textFieldValue = self.dataModel.ringingInterval;
     cellModel2.textFieldType = mk_realNumberOnly;
-    cellModel2.unit = @"ms";
-    cellModel2.maxLength = 5;
+    cellModel2.unit = @"x100ms";
+    cellModel2.maxLength = 3;
     [self.section5List addObject:cellModel2];
 }
 

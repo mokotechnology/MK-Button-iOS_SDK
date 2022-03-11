@@ -54,7 +54,12 @@ MKBXBPowerSaveTriggerTimeCellDelegate>
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self loadSubViews];
-    [self loadSectionDatas];
+    [self readDataFromDevice];
+}
+
+#pragma mark - super method
+- (void)rightButtonMethod {
+    [self saveDataToDevice];
 }
 
 #pragma mark - UITableViewDelegate
@@ -115,6 +120,35 @@ MKBXBPowerSaveTriggerTimeCellDelegate>
     cellModel.time = time;
 }
 
+#pragma mark - interface
+- (void)saveDataToDevice {
+    [[MKHudManager share] showHUDWithTitle:@"Config..." inView:self.view isPenetration:NO];
+    @weakify(self);
+    [self.dataModel configDataWithSucBlock:^{
+        @strongify(self);
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:@"Success"];
+    } failedBlock:^(NSError * _Nonnull error) {
+        @strongify(self);
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
+    }];
+}
+
+- (void)readDataFromDevice {
+    [[MKHudManager share] showHUDWithTitle:@"Reading..." inView:self.view isPenetration:NO];
+    @weakify(self);
+    [self.dataModel readDataWithSucBlock:^{
+        @strongify(self);
+        [[MKHudManager share] hide];
+        [self loadSectionDatas];
+    } failedBlock:^(NSError * _Nonnull error) {
+        @strongify(self);
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
+    }];
+}
+
 #pragma mark - loadSectionDatas
 - (void)loadSectionDatas {
     [self loadSection0Datas];
@@ -172,6 +206,13 @@ MKBXBPowerSaveTriggerTimeCellDelegate>
         _section1List = [NSMutableArray array];
     }
     return _section1List;
+}
+
+- (MKBXBPowerSaveModel *)dataModel {
+    if (!_dataModel) {
+        _dataModel = [[MKBXBPowerSaveModel alloc] init];
+    }
+    return _dataModel;
 }
 
 @end

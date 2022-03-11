@@ -27,6 +27,8 @@ NSString *const mk_bxb_deviceDisconnectTypeNotification = @"mk_bxb_deviceDisconn
 
 NSString *const mk_bxb_receiveAlarmEventDataNotification = @"mk_bxb_receiveAlarmEventDataNotification";
 
+NSString *const mk_bxb_receiveThreeAxisDataNotification = @"mk_bxb_receiveThreeAxisDataNotification";
+
 
 static MKBXBCentralManager *manager = nil;
 static dispatch_once_t onceToken;
@@ -95,15 +97,15 @@ static dispatch_once_t onceToken;
                                              RSSI:(NSNumber *)RSSI {
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         NSLog(@"%@",advertisementData);
-        MKBXBBaseAdvModel *advModel = [MKBXBBaseAdvModel parseAdvData:advertisementData
-                                                           peripheral:peripheral
-                                                                 RSSI:RSSI];
-        if (!advModel || ![advModel isKindOfClass:MKBXBBaseAdvModel.class]) {
+        NSArray *deviceList = [MKBXBBaseAdvModel parseAdvData:advertisementData
+                                                   peripheral:peripheral
+                                                         RSSI:RSSI];
+        if (!MKValidArray(deviceList)) {
             return;
         }
         if ([self.delegate respondsToSelector:@selector(mk_bxb_receiveAdvData:)]) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate mk_bxb_receiveAdvData:advModel];
+                [self.delegate mk_bxb_receiveAdvData:deviceList];
             });
         }
     });
@@ -171,6 +173,20 @@ static dispatch_once_t onceToken;
                                                                    }];
         return;
     }
+    if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA06"]]) {
+        //三轴数据
+        NSString *content = [MKBLEBaseSDKAdopter hexStringFromData:characteristic.value];
+        NSString *xData = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(8, 4)];
+        NSString *yData = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(12, 4)];
+        NSString *zData = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(16, 4)];
+        [[NSNotificationCenter defaultCenter] postNotificationName:mk_bxb_receiveThreeAxisDataNotification
+                                                            object:nil
+                                                          userInfo:@{@"x-Data":xData,
+                                                                     @"y-Data":yData,
+                                                                     @"z-Data":zData,
+                                                                   }];
+        return;
+    }
 }
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(nullable NSError *)error {
     if (error) {
@@ -196,7 +212,8 @@ static dispatch_once_t onceToken;
 }
 
 - (void)startScan {
-    [[MKBLEBaseCentralManager shared] scanForPeripheralsWithServices:@[[CBUUID UUIDWithString:@"FEE0"]]
+    [[MKBLEBaseCentralManager shared] scanForPeripheralsWithServices:@[[CBUUID UUIDWithString:@"FEE0"],
+                                                                       [CBUUID UUIDWithString:@"EA00"]]
                                                              options:@{CBCentralManagerScanOptionAllowDuplicatesKey:@(YES)}];
 }
 
@@ -353,6 +370,14 @@ static dispatch_once_t onceToken;
         return NO;
     }
     [self.peripheral setNotifyValue:notify forCharacteristic:self.peripheral.bxb_longAlarmData];
+    return YES;
+}
+
+- (BOOL)notifyThreeAxisData:(BOOL)notify {
+    if (self.connectStatus != mk_bxb_centralConnectStatusConnected || self.peripheral == nil || self.peripheral.bxb_threeAxisData == nil) {
+        return NO;
+    }
+    [self.peripheral setNotifyValue:notify forCharacteristic:self.peripheral.bxb_threeAxisData];
     return YES;
 }
 

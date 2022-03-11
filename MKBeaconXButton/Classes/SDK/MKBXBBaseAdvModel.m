@@ -15,49 +15,74 @@
 
 @implementation MKBXBBaseAdvModel
 
-+ (MKBXBBaseAdvModel *)parseAdvData:(NSDictionary *)advData
-                         peripheral:(CBPeripheral *)peripheral
-                               RSSI:(NSNumber *)RSSI {
-    MKBXBBaseAdvModel *dataModel = nil;
++ (NSArray <MKBXBBaseAdvModel *>*)parseAdvData:(NSDictionary *)advData
+                                    peripheral:(CBPeripheral *)peripheral
+                                          RSSI:(NSNumber *)RSSI {
     if (!MKValidDict(advData)) {
-        return dataModel;
+        return @[];
     }
     NSDictionary *advDic = advData[CBAdvertisementDataServiceDataKey];
     if (!MKValidDict(advDic)) {
-        return dataModel;
+        return @[];
     }
-    NSData *tempData = advDic[[CBUUID UUIDWithString:@"FEE0"]];
-    if (!MKValidData(tempData)) {
-        return dataModel;
+    NSData *scanData = advDic[[CBUUID UUIDWithString:@"FEE0"]];
+    NSData *respondData = advDic[[CBUUID UUIDWithString:@"EA00"]];
+    if (!MKValidData(scanData)) {
+        return @[];
     }
-    NSString *tempDataString = [MKBLEBaseSDKAdopter hexStringFromData:tempData];
+    NSMutableArray *dataList = [NSMutableArray array];
+    MKBXBBaseAdvModel *scanModel = [self parseAdvModeWithData:scanData];
+    MKBXBBaseAdvModel *respondModel = [self parseAdvModeWithData:respondData];
+    if (respondModel && [respondModel isKindOfClass:MKBXBAdvRespondDataModel.class]) {
+        //回应包内容
+        MKBXBAdvRespondDataModel *tempModel = (MKBXBAdvRespondDataModel *)respondModel;
+        tempModel.txPower = advData[CBAdvertisementDataTxPowerLevelKey];
+        tempModel.rssi = RSSI;
+        tempModel.connectEnable = [advData[CBAdvertisementDataIsConnectable] boolValue];
+        tempModel.identifier = peripheral.identifier.UUIDString;
+        tempModel.peripheral = peripheral;
+        tempModel.advertiseData = respondData;
+        tempModel.deviceName = advData[CBAdvertisementDataLocalNameKey];
+        [dataList addObject:tempModel];
+    }
+    if (scanModel && [scanModel isKindOfClass:MKBXBAdvDataModel.class]) {
+        //触发广播包
+        MKBXBAdvDataModel *tempModel = (MKBXBAdvDataModel *)scanModel;
+        tempModel.rssi = RSSI;
+        tempModel.connectEnable = [advData[CBAdvertisementDataIsConnectable] boolValue];
+        tempModel.identifier = peripheral.identifier.UUIDString;
+        tempModel.peripheral = peripheral;
+        tempModel.advertiseData = respondData;
+        tempModel.deviceName = advData[CBAdvertisementDataLocalNameKey];
+        [dataList addObject:tempModel];
+    }
+    
+    return dataList;
+}
+
++ (MKBXBBaseAdvModel *)parseAdvModeWithData:(NSData *)advData {
+    if (!MKValidData(advData)) {
+        return nil;
+    }
+    NSString *tempDataString = [MKBLEBaseSDKAdopter hexStringFromData:advData];
     if (!MKValidStr(tempDataString)) {
-        return dataModel;
+        return nil;
     }
     NSString *typeString = [tempDataString substringWithRange:NSMakeRange(0, 2)];
     if ([typeString isEqualToString:@"00"]) {
         //回应包内容
-        MKBXBAdvRespondDataModel *tempModel = [[MKBXBAdvRespondDataModel alloc] initRespondWithAdvertiseData:tempData];
+        MKBXBAdvRespondDataModel *tempModel = [[MKBXBAdvRespondDataModel alloc] initRespondWithAdvertiseData:advData];
         tempModel.frameType = MKBXBRespondFrameType;
-        tempModel.txPower = advData[CBAdvertisementDataTxPowerLevelKey];
-        dataModel = tempModel;
+        return tempModel;
     }
     if ([typeString isEqualToString:@"20"] || [typeString isEqualToString:@"21"]
         || [typeString isEqualToString:@"22"] || [typeString isEqualToString:@"23"]) {
         //触发广播包
-        MKBXBAdvDataModel *tempModel = [[MKBXBAdvDataModel alloc] initWithAdvertiseData:tempData];
+        MKBXBAdvDataModel *tempModel = [[MKBXBAdvDataModel alloc] initWithAdvertiseData:advData];
         tempModel.frameType = MKBXBAdvFrameType;
-        dataModel = tempModel;
+        return tempModel;
     }
-    if (dataModel && [dataModel isKindOfClass:MKBXBBaseAdvModel.class]) {
-        dataModel.rssi = RSSI;
-        dataModel.connectEnable = [advData[CBAdvertisementDataIsConnectable] boolValue];
-        dataModel.identifier = peripheral.identifier.UUIDString;
-        dataModel.peripheral = peripheral;
-        dataModel.advertiseData = tempData;
-        dataModel.deviceName = advData[CBAdvertisementDataLocalNameKey];
-    }
-    return dataModel;
+    return nil;
 }
 
 @end

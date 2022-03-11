@@ -8,6 +8,131 @@
 
 #import "MKBXBPowerSaveModel.h"
 
+#import "MKMacroDefines.h"
+
+#import "MKBXBInterface.h"
+#import "MKBXBInterface+MKBXBConfig.h"
+
+@interface MKBXBPowerSaveModel ()
+
+@property (nonatomic, strong)dispatch_queue_t readQueue;
+
+@property (nonatomic, strong)dispatch_semaphore_t semaphore;
+
+@end
+
 @implementation MKBXBPowerSaveModel
+
+- (void)readDataWithSucBlock:(void (^)(void))sucBlock failedBlock:(void (^)(NSError *error))failedBlock {
+    dispatch_async(self.readQueue, ^{
+        if (![self readModeStatus]) {
+            [self operationFailedBlockWithMsg:@"Read Power saving mode error" block:failedBlock];
+            return;
+        }
+        if (![self readTriggerTime]) {
+            [self operationFailedBlockWithMsg:@"Read Static trigger time error" block:failedBlock];
+            return;
+        }
+        moko_dispatch_main_safe(^{
+            if (sucBlock) {
+                sucBlock();
+            }
+        });
+    });
+}
+
+- (void)configDataWithSucBlock:(void (^)(void))sucBlock failedBlock:(void (^)(NSError *error))failedBlock {
+    dispatch_async(self.readQueue, ^{
+        if (![self configModeStatus]) {
+            [self operationFailedBlockWithMsg:@"Config Power saving mode error" block:failedBlock];
+            return;
+        }
+        if (![self configTriggerTime]) {
+            [self operationFailedBlockWithMsg:@"Config Static trigger time error" block:failedBlock];
+            return;
+        }
+        moko_dispatch_main_safe(^{
+            if (sucBlock) {
+                sucBlock();
+            }
+        });
+    });
+}
+
+#pragma mark - interface
+- (BOOL)readModeStatus {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_readPowerSavingModeWithSucBlock:^(id  _Nonnull returnData) {
+        success = YES;
+        self.isOn = [returnData[@"result"][@"isOn"] boolValue];
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+- (BOOL)configModeStatus {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_configPowerSavingMode:self.isOn sucBlock:^{
+        success = YES;
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+- (BOOL)readTriggerTime {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_readStaticTriggerTimeWithSucBlock:^(id  _Nonnull returnData) {
+        success = YES;
+        self.triggerTime = returnData[@"result"][@"time"];
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+- (BOOL)configTriggerTime {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_configStaticTriggerTime:[self.triggerTime integerValue] sucBlock:^{
+        success = YES;
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+#pragma mark - private method
+- (void)operationFailedBlockWithMsg:(NSString *)msg block:(void (^)(NSError *error))block {
+    moko_dispatch_main_safe(^{
+        NSError *error = [[NSError alloc] initWithDomain:@"PowerSaveParams"
+                                                    code:-999
+                                                userInfo:@{@"errorInfo":msg}];
+        block(error);
+    })
+}
+
+#pragma mark - getter
+- (dispatch_semaphore_t)semaphore {
+    if (!_semaphore) {
+        _semaphore = dispatch_semaphore_create(0);
+    }
+    return _semaphore;
+}
+
+- (dispatch_queue_t)readQueue {
+    if (!_readQueue) {
+        _readQueue = dispatch_queue_create("PowerSaveQueue", DISPATCH_QUEUE_SERIAL);
+    }
+    return _readQueue;
+}
 
 @end

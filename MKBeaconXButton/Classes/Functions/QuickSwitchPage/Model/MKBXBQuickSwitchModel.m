@@ -26,17 +26,30 @@
 
 - (void)readWithSucBlock:(void (^)(void))sucBlock failedBlock:(void (^)(NSError *error))failedBlock {
     dispatch_async(self.readQueue, ^{
-//        if (![self readConnectable]) {
-//            [self operationFailedBlockWithMsg:@"Read Connectable Error" block:failedBlock];
-//            return;
-//        }
-//        [self readTriggerLED];
-//        if (![self readTurnOffByButton]) {
-//            [self operationFailedBlockWithMsg:@"Read Turn off Beacon by button Error" block:failedBlock];
-//            return;
-//        }
-//        [self readResetByButton];
-//        self.passwordVerification = [MKBXBConnectManager shared].needPassword;
+        if (![self readConnectable]) {
+            [self operationFailedBlockWithMsg:@"Read Connectable Error" block:failedBlock];
+            return;
+        }
+        if (![self readTurnOffByButton]) {
+            [self operationFailedBlockWithMsg:@"Read Turn off Beacon by button Error" block:failedBlock];
+            return;
+        }
+        if (![self readPasswordVerification]) {
+            [self operationFailedBlockWithMsg:@"Read Password verification Error" block:failedBlock];
+            return;
+        }
+        if (![self readResetByButton]) {
+            [self operationFailedBlockWithMsg:@"Read Reset Beacon by button Error" block:failedBlock];
+            return;
+        }
+        if (![self readScanPacket]) {
+            [self operationFailedBlockWithMsg:@"Read Scan response packet Error" block:failedBlock];
+            return;
+        }
+        if (![self readDismissAlarmByButton]) {
+            [self operationFailedBlockWithMsg:@"Read Dismiss alarm by button Error" block:failedBlock];
+            return;
+        }
         moko_dispatch_main_safe(^{
             if (sucBlock) {
                 sucBlock();
@@ -46,59 +59,83 @@
 }
 
 #pragma mark - interface
-//- (BOOL)readConnectable {
-//    __block BOOL success = NO;
-//    [MKBXBInterface bxb_readConnectEnableStatusWithSucBlock:^(id  _Nonnull returnData) {
-//        success = YES;
-//        self.connectable = [returnData[@"result"][@"connectEnable"] boolValue];
-//        dispatch_semaphore_signal(self.semaphore);
-//    } failedBlock:^(NSError * _Nonnull error) {
-//        dispatch_semaphore_signal(self.semaphore);
-//    }];
-//    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
-//    return success;
-//}
-//
-//- (BOOL)readTriggerLED {
-//    __block BOOL success = NO;
-//    [MKBXBInterface bxb_readLEDTriggerStatusWithSucBlock:^(id  _Nonnull returnData) {
-//        success = YES;
-//        self.triggerLED = [returnData[@"result"][@"isOn"] boolValue];
-//        self.supportLED = YES;
-//        dispatch_semaphore_signal(self.semaphore);
-//    } failedBlock:^(NSError * _Nonnull error) {
-//        dispatch_semaphore_signal(self.semaphore);
-//    }];
-//    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
-//    return success;
-//}
-//
-//- (BOOL)readTurnOffByButton {
-//    __block BOOL success = NO;
-//    [MKBXBInterface bxb_readButtonPowerStatusWithSucBlock:^(id  _Nonnull returnData) {
-//        success = YES;
-//        self.turnOffByButton = [returnData[@"result"][@"isOn"] boolValue];
-//        dispatch_semaphore_signal(self.semaphore);
-//    } failedBlock:^(NSError * _Nonnull error) {
-//        dispatch_semaphore_signal(self.semaphore);
-//    }];
-//    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
-//    return success;
-//}
-//
-//- (BOOL)readResetByButton {
-//    __block BOOL success = NO;
-//    [MKBXBInterface bxb_readResetBeaconByButtonStatusWithSucBlock:^(id  _Nonnull returnData) {
-//        success = YES;
-//        self.resetByButton = [returnData[@"result"][@"isOn"] boolValue];
-//        self.supportResetByButton = YES;
-//        dispatch_semaphore_signal(self.semaphore);
-//    } failedBlock:^(NSError * _Nonnull error) {
-//        dispatch_semaphore_signal(self.semaphore);
-//    }];
-//    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
-//    return success;
-//}
+- (BOOL)readConnectable {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_readConnectableWithSucBlock:^(id  _Nonnull returnData) {
+        success = YES;
+        self.connectable = [returnData[@"result"][@"connectable"] boolValue];
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+- (BOOL)readTurnOffByButton {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_readTurnOffDeviceByButtonStatusWithSucBlock:^(id  _Nonnull returnData) {
+        success = YES;
+        self.turnOffByButton = [returnData[@"result"][@"isOn"] boolValue];
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+- (BOOL)readPasswordVerification {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_readPasswordVerificationWithSucBlock:^(id  _Nonnull returnData) {
+        success = YES;
+        self.passwordVerification = [returnData[@"result"][@"isOn"] boolValue];
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+- (BOOL)readResetByButton {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_readResetDeviceByButtonStatusWithSucBlock:^(id  _Nonnull returnData) {
+        success = YES;
+        self.resetByButton = [returnData[@"result"][@"isOn"] boolValue];
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+- (BOOL)readScanPacket {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_readScanResponsePacketWithSucBlock:^(id  _Nonnull returnData) {
+        success = YES;
+        self.scanPacket = [returnData[@"result"][@"isOn"] boolValue];
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+- (BOOL)readDismissAlarmByButton {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_readDismissAlarmByButtonWithSucBlock:^(id  _Nonnull returnData) {
+        success = YES;
+        self.dismiss = [returnData[@"result"][@"isOn"] boolValue];
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
 
 #pragma mark - private method
 - (void)operationFailedBlockWithMsg:(NSString *)msg block:(void (^)(NSError *error))block {

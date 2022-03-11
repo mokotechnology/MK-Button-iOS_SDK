@@ -150,7 +150,7 @@ MKBXBTabBarControllerDelegate>
     MKBXBScanDataModel *model = self.dataList[indexPath.section];
     NSObject *obj = model.advertiseList[indexPath.row - 1];
     if ([obj isKindOfClass:MKBXBScanDeviceInfoCellModel.class]) {
-        return 70.f;
+        return 105.f;
     }
     if ([obj isKindOfClass:MKBXBScanAdvCellModel.class]) {
         return 70.f;
@@ -198,8 +198,12 @@ MKBXBTabBarControllerDelegate>
 }
 
 #pragma mark - mk_bxb_centralManagerScanDelegate
-- (void)mk_bxb_receiveAdvData:(MKBXBBaseAdvModel *)advModel {
-    [self updateDataWithAdvModel:advModel];
+/// Scan to new device.
+/// @param deviceList deviceList
+- (void)mk_bxb_receiveAdvData:(NSArray <MKBXBBaseAdvModel *>*)deviceList {
+    for (MKBXBBaseAdvModel *advModel in deviceList) {
+        [self updateDataWithAdvModel:advModel];
+    }
 }
 
 - (void)mk_bxb_stopScan {

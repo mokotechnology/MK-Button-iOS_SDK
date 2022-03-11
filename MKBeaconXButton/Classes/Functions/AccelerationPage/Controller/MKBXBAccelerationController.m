@@ -51,6 +51,8 @@ MKBXBAccelerationHeaderViewDelegate>
 
 - (void)dealloc {
     NSLog(@"MKBXBAccelerationController销毁");
+    [[MKBXBCentralManager shared] notifyThreeAxisData:NO];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -70,6 +72,10 @@ MKBXBAccelerationHeaderViewDelegate>
     [super viewDidLoad];
     [self loadSubViews];
     [self readDataFromDevice];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(receiveAxisDatas:)
+                                                 name:mk_bxb_receiveThreeAxisDataNotification
+                                               object:nil];
 }
 
 #pragma mark - super method
@@ -170,7 +176,7 @@ MKBXBAccelerationHeaderViewDelegate>
 
 #pragma mark - MKBXBAccelerationHeaderViewDelegate
 - (void)bxb_updateThreeAxisNotifyStatus:(BOOL)notify {
-//    [[MKBXBCentralManager shared] notifyThreeAxisAcceleration:notify];
+    [[MKBXBCentralManager shared] notifyThreeAxisData:notify];
 }
 
 #pragma mark - 通知
@@ -179,12 +185,7 @@ MKBXBAccelerationHeaderViewDelegate>
     if (!ValidDict(dic)) {
         return;
     }
-    NSArray *tempList = dic[@"axisData"];
-    if (!ValidArray(tempList)) {
-        return;
-    }
-    NSDictionary *axisData = [tempList lastObject];
-    [self.headerView updateDataWithXData:axisData[@"x-Data"] yData:axisData[@"y-Data"] zData:axisData[@"z-Data"]];
+    [self.headerView updateDataWithXData:dic[@"x-Data"] yData:dic[@"y-Data"] zData:dic[@"z-Data"]];
 }
 
 #pragma mark - 读取数据
@@ -280,14 +281,14 @@ MKBXBAccelerationHeaderViewDelegate>
         _tableView.delegate = self;
         _tableView.dataSource = self;
         
-        _tableView.tableHeaderView = self.headerView;
+        _tableView.tableHeaderView = [self tableHeaderView];
     }
     return _tableView;
 }
 
 - (MKBXBAccelerationHeaderView *)headerView {
     if (!_headerView) {
-        _headerView = [[MKBXBAccelerationHeaderView alloc] initWithFrame:CGRectMake(0, 0, kViewWidth, 120.f)];
+        _headerView = [[MKBXBAccelerationHeaderView alloc] initWithFrame:CGRectMake(0, 0, kViewWidth, 55.f)];
         _headerView.delegate = self;
     }
     return _headerView;
@@ -319,6 +320,13 @@ MKBXBAccelerationHeaderViewDelegate>
         _dataModel = [[MKBXBAccelerationModel alloc] init];
     }
     return _dataModel;
+}
+
+- (UIView *)tableHeaderView {
+    UIView *tempView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kViewWidth, 65.f)];
+    tempView.backgroundColor = RGBCOLOR(242, 242, 242);
+    [tempView addSubview:self.headerView];
+    return tempView;
 }
 
 @end

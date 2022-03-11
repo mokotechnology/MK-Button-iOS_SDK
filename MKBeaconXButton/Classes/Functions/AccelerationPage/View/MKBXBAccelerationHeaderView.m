@@ -106,9 +106,9 @@
 
 #pragma mark - public method
 - (void)updateDataWithXData:(NSString *)xData yData:(NSString *)yData zData:(NSString *)zData {
-    self.xDataLabel.text = [@"X-axis:0x" stringByAppendingString:xData];
-    self.yDataLabel.text = [@"Y-axis:0x" stringByAppendingString:yData];
-    self.zDataLabel.text = [@"Z-axis:0x" stringByAppendingString:zData];
+    self.xDataLabel.text = [NSString stringWithFormat:@"X-axis:%@mg",xData];
+    self.yDataLabel.text = [NSString stringWithFormat:@"Y-axis:%@mg",yData];
+    self.zDataLabel.text = [NSString stringWithFormat:@"Z-axis:%@mg",zData];
 }
 
 #pragma mark - getter

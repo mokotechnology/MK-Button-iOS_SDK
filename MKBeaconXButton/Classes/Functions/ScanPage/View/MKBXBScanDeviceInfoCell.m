@@ -27,7 +27,11 @@
 
 @property (nonatomic, strong)UILabel *accelerationLabel;
 
-@property (nonatomic, strong)UILabel *accelerationValueLabel;
+@property (nonatomic, strong)UILabel *xDataLabel;
+
+@property (nonatomic, strong)UILabel *yDataLabel;
+
+@property (nonatomic, strong)UILabel *zDataLabel;
 
 @end
 
@@ -48,7 +52,9 @@
         [self.contentView addSubview:self.rangingLabel];
         [self.contentView addSubview:self.rangingValueLabel];
         [self.contentView addSubview:self.accelerationLabel];
-        [self.contentView addSubview:self.accelerationValueLabel];
+        [self.contentView addSubview:self.xDataLabel];
+        [self.contentView addSubview:self.yDataLabel];
+        [self.contentView addSubview:self.zDataLabel];
     }
     return self;
 }
@@ -85,10 +91,22 @@
         make.top.mas_equalTo(self.rangingValueLabel.mas_bottom).mas_offset(5.f);
         make.height.mas_equalTo(MKFont(12.f).lineHeight);
     }];
-    [self.accelerationValueLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.xDataLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.contentView.mas_centerX).mas_offset(5.f);
         make.right.mas_equalTo(-10.f);
         make.centerY.mas_equalTo(self.accelerationLabel.mas_centerY);
+        make.height.mas_equalTo(MKFont(12.f).lineHeight);
+    }];
+    [self.yDataLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.contentView.mas_centerX).mas_offset(5.f);
+        make.right.mas_equalTo(-10.f);
+        make.top.mas_equalTo(self.xDataLabel.mas_bottom).mas_offset(5.f);
+        make.height.mas_equalTo(MKFont(12.f).lineHeight);
+    }];
+    [self.zDataLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.contentView.mas_centerX).mas_offset(5.f);
+        make.right.mas_equalTo(-10.f);
+        make.top.mas_equalTo(self.yDataLabel.mas_bottom).mas_offset(5.f);
         make.height.mas_equalTo(MKFont(12.f).lineHeight);
     }];
 }
@@ -101,7 +119,9 @@
         return;
     }
     self.rangingValueLabel.text = SafeStr(_dataModel.rangingData);
-    self.accelerationValueLabel.text = SafeStr(_dataModel.acceleration);
+    self.xDataLabel.text = [@"X: " stringByAppendingString:SafeStr(_dataModel.xData)];
+    self.yDataLabel.text = [@"Y: " stringByAppendingString:SafeStr(_dataModel.yData)];
+    self.zDataLabel.text = [@"Z: " stringByAppendingString:SafeStr(_dataModel.zData)];
 }
 
 #pragma mark - getter
@@ -147,11 +167,25 @@
     return _accelerationLabel;
 }
 
-- (UILabel *)accelerationValueLabel {
-    if (!_accelerationValueLabel) {
-        _accelerationValueLabel = [self createLabel];
+- (UILabel *)xDataLabel {
+    if (!_xDataLabel) {
+        _xDataLabel = [self createLabel];
     }
-    return _accelerationValueLabel;
+    return _xDataLabel;
+}
+
+- (UILabel *)yDataLabel {
+    if (!_yDataLabel) {
+        _yDataLabel = [self createLabel];
+    }
+    return _yDataLabel;
+}
+
+- (UILabel *)zDataLabel {
+    if (!_zDataLabel) {
+        _zDataLabel = [self createLabel];
+    }
+    return _zDataLabel;
 }
 
 - (UILabel *)createLabel {

@@ -88,7 +88,9 @@ static const char *frameTypeKey = "frameTypeKey";
         MKBXBAdvRespondDataModel *tempModel = (MKBXBAdvRespondDataModel *)advModel;
         MKBXBScanDeviceInfoCellModel *cellModel = [[MKBXBScanDeviceInfoCellModel alloc] init];
         cellModel.rangingData = [tempModel.rangingData stringByAppendingString:@"dBm"];
-        cellModel.acceleration = [NSString stringWithFormat:@"X: %@mg Y: %@mg Z: %@mg",SafeStr(tempModel.xData),SafeStr(tempModel.yData),SafeStr(tempModel.zData)];
+        cellModel.xData = [SafeStr(tempModel.xData) stringByAppendingString:@"mg"];
+        cellModel.yData = [SafeStr(tempModel.yData) stringByAppendingString:@"mg"];
+        cellModel.zData = [SafeStr(tempModel.zData) stringByAppendingString:@"mg"];
         
         return cellModel;
     }

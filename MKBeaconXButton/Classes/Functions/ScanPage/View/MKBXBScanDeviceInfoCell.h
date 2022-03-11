@@ -14,7 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy)NSString *rangingData;
 
-@property (nonatomic, copy)NSString *acceleration;
+@property (nonatomic, copy)NSString *xData;
+
+@property (nonatomic, copy)NSString *yData;
+
+@property (nonatomic, copy)NSString *zData;
 
 @end
 
