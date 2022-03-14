@@ -176,14 +176,17 @@ static dispatch_once_t onceToken;
     if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA06"]]) {
         //三轴数据
         NSString *content = [MKBLEBaseSDKAdopter hexStringFromData:characteristic.value];
-        NSString *xData = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(8, 4)];
-        NSString *yData = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(12, 4)];
-        NSString *zData = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(16, 4)];
+        NSNumber *xData = [MKBLEBaseSDKAdopter signedHexTurnString:[content substringWithRange:NSMakeRange(8, 4)]];
+        NSString *xDataString = [NSString stringWithFormat:@"%ld",(long)[xData integerValue]];
+        NSNumber *yData = [MKBLEBaseSDKAdopter signedHexTurnString:[content substringWithRange:NSMakeRange(12, 4)]];
+        NSString *yDataString = [NSString stringWithFormat:@"%ld",(long)[yData integerValue]];
+        NSNumber *zData = [MKBLEBaseSDKAdopter signedHexTurnString:[content substringWithRange:NSMakeRange(16, 4)]];
+        NSString *zDataString = [NSString stringWithFormat:@"%ld",(long)[zData integerValue]];
         [[NSNotificationCenter defaultCenter] postNotificationName:mk_bxb_receiveThreeAxisDataNotification
                                                             object:nil
-                                                          userInfo:@{@"x-Data":xData,
-                                                                     @"y-Data":yData,
-                                                                     @"z-Data":zData,
+                                                          userInfo:@{@"x-Data":xDataString,
+                                                                     @"y-Data":yDataString,
+                                                                     @"z-Data":zDataString,
                                                                    }];
         return;
     }
