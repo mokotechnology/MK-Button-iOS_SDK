@@ -38,9 +38,9 @@
 - (void)dealloc {
     NSLog(@"MKBXBTabBarController销毁");
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [MKBLEBaseLogManager deleteLogWithFileName:@"/SingleEventDatas"];
-    [MKBLEBaseLogManager deleteLogWithFileName:@"/DoubleEventDatas"];
-    [MKBLEBaseLogManager deleteLogWithFileName:@"/LongEventDatas"];
+    [MKBLEBaseLogManager deleteLogWithFileName:@"/Single press trigger event"];
+    [MKBLEBaseLogManager deleteLogWithFileName:@"/Double press trigger event"];
+    [MKBLEBaseLogManager deleteLogWithFileName:@"/Long press trigger event"];
 }
 
 - (void)viewDidDisappear:(BOOL)animated{

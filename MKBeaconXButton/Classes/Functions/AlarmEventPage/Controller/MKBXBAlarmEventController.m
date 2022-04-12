@@ -294,7 +294,7 @@ MKBXBAlarmEventCountCellDelegate>
     [self.section1List addObject:cellModel2];
     
     MKBXBAlarmEventCountCellModel *cellModel3 = [[MKBXBAlarmEventCountCellModel alloc] init];
-    cellModel3.index = 0;
+    cellModel3.index = 2;
     cellModel3.msg = @"Long press event count";
     cellModel3.count = @"0";
     [self.section1List addObject:cellModel3];

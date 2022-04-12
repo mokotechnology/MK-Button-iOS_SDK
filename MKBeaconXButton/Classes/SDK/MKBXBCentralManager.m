@@ -164,6 +164,9 @@ static dispatch_once_t onceToken;
         || [characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA04"]]
         || [characteristic.UUID isEqual:[CBUUID UUIDWithString:@"AA05"]]) {
         NSString *content = [MKBLEBaseSDKAdopter hexStringFromData:characteristic.value];
+        if (content.length != 26) {
+            return;
+        }
         NSString *timestamp = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(8, 16)];
         NSString *alarmType = [content substringWithRange:NSMakeRange(24, 2)];
         [[NSNotificationCenter defaultCenter] postNotificationName:mk_bxb_receiveAlarmEventDataNotification

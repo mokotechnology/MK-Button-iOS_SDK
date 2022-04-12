@@ -48,7 +48,7 @@ static CGFloat const buttonHeight = 30.f;
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
         [self.contentView addSubview:self.msgLabel];
-        [self.contentView addSubview:self.checkButton];
+//        [self.contentView addSubview:self.checkButton];
         [self.contentView addSubview:self.countLabel];
         [self.contentView addSubview:self.clearButton];
         [self.contentView addSubview:self.exportButton];
@@ -59,17 +59,17 @@ static CGFloat const buttonHeight = 30.f;
 - (void)layoutSubviews {
     [super layoutSubviews];
     [self.countLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.clearButton.mas_left);
         make.right.mas_equalTo(-15.f);
-        make.width.mas_equalTo(buttonWidth);
-        make.centerY.mas_equalTo(self.checkButton.mas_centerY);
-        make.height.mas_equalTo(MKFont(13.f).lineHeight);
-    }];
-    [self.checkButton mas_remakeConstraints:^(MASConstraintMaker *make) {
-        make.right.mas_equalTo(self.countLabel.mas_left).mas_offset(-10.f);
-        make.width.mas_equalTo(buttonWidth);
         make.top.mas_equalTo(10.f);
         make.height.mas_equalTo(buttonHeight);
     }];
+//    [self.checkButton mas_remakeConstraints:^(MASConstraintMaker *make) {
+//        make.right.mas_equalTo(self.countLabel.mas_left).mas_offset(-10.f);
+//        make.width.mas_equalTo(buttonWidth);
+//        make.top.mas_equalTo(10.f);
+//        make.height.mas_equalTo(buttonHeight);
+//    }];
     [self.exportButton mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.right.mas_equalTo(-15.f);
         make.width.mas_equalTo(buttonWidth);
@@ -87,7 +87,7 @@ static CGFloat const buttonHeight = 30.f;
                                  andMaxSize:CGSizeMake(kViewWidth - 3 * 15.f - 10.f - 2 * buttonWidth, MAXFLOAT)];
     [self.msgLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(15.f);
-        make.right.mas_equalTo(self.checkButton.mas_left).mas_offset(-15.f);
+        make.right.mas_equalTo(self.countLabel.mas_left).mas_offset(-15.f);
         make.centerY.mas_equalTo(self.mas_centerY);
         make.height.mas_equalTo(msgSize.height);
     }];

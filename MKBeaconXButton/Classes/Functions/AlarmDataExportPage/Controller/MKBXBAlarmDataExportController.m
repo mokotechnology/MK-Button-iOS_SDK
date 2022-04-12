@@ -179,13 +179,13 @@
 
 - (NSString *)currentDataName {
     if (self.pageType == MKBXBAlarmDataExportControllerType_single) {
-        return @"SingleEventDatas";
+        return @"Single press trigger event";
     }
     if (self.pageType == MKBXBAlarmDataExportControllerType_double) {
-        return @"DoubleEventDatas";
+        return @"Double press trigger event";
     }
     if (self.pageType == MKBXBAlarmDataExportControllerType_long) {
-        return @"LongEventDatas";
+        return @"Long press trigger event";
     }
     return @"";
 }
@@ -265,7 +265,7 @@
     [self.bottomView addSubview:self.syncButton];
     [self.bottomView addSubview:self.syncLabel];
     [self.syncButton addSubview:self.syncIcon];
-    CGFloat buttonWidth = 50.f;
+    CGFloat buttonWidth = 70.f;
     CGFloat space = (kViewWidth - 2 * 10 - 3 * 30) / 4;
     [self.syncButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(space);
@@ -352,7 +352,7 @@
     if (!_deleteButton) {
         _deleteButton = [[MKBXBAlarmDataExportButton alloc] init];
         MKBXBAlarmDataExportButtonModel *model = [[MKBXBAlarmDataExportButtonModel alloc] init];
-        model.msg = @"Erase all";
+        model.msg = @"Empty list";
         model.icon = LOADICON(@"MKBeaconXButton", @"MKBXBAlarmDataExportController", @"bxb_slotExportDeleteIcon.png");
         _deleteButton.dataModel = model;
         [_deleteButton addTarget:self
