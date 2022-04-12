@@ -61,7 +61,7 @@
 }
 
 + (MKBXBBaseAdvModel *)parseAdvModeWithData:(NSData *)advData {
-    if (!MKValidData(advData)) {
+    if (!MKValidData(advData) || advData.length < 6) {
         return nil;
     }
     NSString *tempDataString = [MKBLEBaseSDKAdopter hexStringFromData:advData];
@@ -107,7 +107,9 @@
         NSString *binary = [MKBLEBaseSDKAdopter binaryByhex:state];
         self.trigger = [[binary substringWithRange:NSMakeRange(6, 1)] isEqualToString:@"1"];
         self.triggerCount = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(4, 4)];
-        self.deviceID = [content substringFromIndex:8];
+        NSInteger len = advData.length - 6;
+        self.deviceID = [content substringWithRange:NSMakeRange(8, 2 * len)];
+        self.deviceType = [MKBLEBaseSDKAdopter getDecimalStringWithHex:content range:NSMakeRange(8 + 2 * len, 2)];
     }
     return self;
 }

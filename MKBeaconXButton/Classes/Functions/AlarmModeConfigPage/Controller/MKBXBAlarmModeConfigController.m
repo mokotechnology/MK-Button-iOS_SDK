@@ -114,7 +114,13 @@ MKBXBAbnormalInactivityTimeCellDelegate>
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    if (section == 0 || section == 1 || section == 6) {
+    if (section == 0) {
+        return 10;
+    }
+    if (self.dataModel.advIsOn && section == 1) {
+        return 10;
+    }
+    if (self.dataModel.alarmMode && section == 6) {
         return 10;
     }
     return 0.f;
@@ -158,6 +164,7 @@ MKBXBAbnormalInactivityTimeCellDelegate>
         self.dataModel.advIsOn = isOn;
         MKTextSwitchCellModel *cellModel = self.section0List[0];
         cellModel.isOn = isOn;
+        [self.tableView reloadData];
         return;
     }
     if (index == 1) {
@@ -165,6 +172,7 @@ MKBXBAbnormalInactivityTimeCellDelegate>
         self.dataModel.alarmMode = isOn;
         MKTextSwitchCellModel *cellModel = self.section6List[0];
         cellModel.isOn = isOn;
+        [self.tableView reloadData];
         return;
     }
     if (index == 2) {
@@ -343,34 +351,35 @@ MKBXBAbnormalInactivityTimeCellDelegate>
     if (section == 0) {
         return self.section0List.count;
     }
-    if (section == 1) {
+    if (section == 1 && self.dataModel.advIsOn) {
         return self.section1List.count;
     }
-    if (section == 2) {
+    if (section == 2 && self.dataModel.advIsOn) {
         return self.section2List.count;
     }
-    if (section == 3) {
+    if (section == 3 && self.dataModel.advIsOn) {
         return self.section3List.count;
     }
-    if (section == 4) {
+    if (section == 4 && self.dataModel.advIsOn) {
         return self.section4List.count;
     }
-    if (section == 5) {
+    if (section == 5 && self.dataModel.advIsOn) {
         return self.section5List.count;
     }
     if (section == 6) {
-        return self.section6List.count;
+        //section6List里面包含Alarm mode和Stay advertising before triggered，Alarm mode关闭的时候Stay advertising before triggered需要隐藏
+        return (self.dataModel.alarmMode ? self.section6List.count : 1);
     }
-    if (section == 7) {
+    if (section == 7 && self.dataModel.alarmMode) {
         return (self.pageType == MKBXBAlarmModeConfigControllerType_abnormal ? self.section7List.count : 0);
     }
-    if (section == 8) {
+    if (section == 8 && self.dataModel.alarmMode) {
         return self.section8List.count;
     }
-    if (section == 9) {
+    if (section == 9 && self.dataModel.alarmMode) {
         return self.section9List.count;
     }
-    if (section == 10) {
+    if (section == 10 && self.dataModel.alarmMode) {
         return self.section10List.count;
     }
     return 0;

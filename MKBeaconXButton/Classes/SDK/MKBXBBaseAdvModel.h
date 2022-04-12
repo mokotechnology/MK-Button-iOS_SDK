@@ -71,6 +71,8 @@ typedef NS_ENUM(NSInteger, MKBXBAdvAlarmType) {
 /// Trigger Count.
 @property (nonatomic, copy)NSString *triggerCount;
 
+@property (nonatomic, copy)NSString *deviceType;
+
 @property (nonatomic, copy)NSString *deviceID;
 
 - (MKBXBAdvDataModel *)initWithAdvertiseData:(NSData *)advData;

@@ -33,17 +33,17 @@ NSString *const mk_bxb_receiveThreeAxisDataNotification = @"mk_bxb_receiveThreeA
 static MKBXBCentralManager *manager = nil;
 static dispatch_once_t onceToken;
 
-@interface NSObject (MKBXBCentralManager)
-
-@end
-
-@implementation NSObject (MKBXBCentralManager)
-
-+ (void)load{
-    [MKBXBCentralManager shared];
-}
-
-@end
+//@interface NSObject (MKBXBCentralManager)
+//
+//@end
+//
+//@implementation NSObject (MKBXBCentralManager)
+//
+//+ (void)load{
+//    [MKBXBCentralManager shared];
+//}
+//
+//@end
 
 @interface MKBXBCentralManager ()
 

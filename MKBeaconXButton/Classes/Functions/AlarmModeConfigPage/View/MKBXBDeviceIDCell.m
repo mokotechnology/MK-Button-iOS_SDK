@@ -105,9 +105,9 @@
 - (MKTextField *)textField {
     if (!_textField) {
         _textField = [MKCustomUIAdopter customNormalTextFieldWithText:@""
-                                                          placeHolder:@"1-8 bytes"
+                                                          placeHolder:@"1-6 bytes"
                                                              textType:mk_hexCharOnly];
-        _textField.maxLength = 16;
+        _textField.maxLength = 12;
         @weakify(self);
         _textField.textChangedBlock = ^(NSString * _Nonnull text) {
             @strongify(self);
