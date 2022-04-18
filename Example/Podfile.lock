@@ -67,7 +67,11 @@ PODS:
     - MKCustomUIModule
   - MKBeaconXButton/Expand/View (0.1.0):
     - MKBaseModuleLibrary
+    - MKBeaconXButton/Expand/View/DeviceIDCell (= 0.1.0)
     - MKBeaconXButton/Expand/View/NTPickerView (= 0.1.0)
+    - MKCustomUIModule
+  - MKBeaconXButton/Expand/View/DeviceIDCell (0.1.0):
+    - MKBaseModuleLibrary
     - MKCustomUIModule
   - MKBeaconXButton/Expand/View/NTPickerView (0.1.0):
     - MKBaseModuleLibrary
@@ -1342,7 +1346,7 @@ SPEC CHECKSUMS:
   MJRefresh: fdf5e979eb406a0341468932d1dfc8b7f9fce961
   MKBaseBleModule: 6019b69cf3c5a220b1cfe18e71e1e5e63f4757da
   MKBaseModuleLibrary: 859013194f81daa5f8a7a777ce88bf58cd3b5919
-  MKBeaconXButton: d28a2a75e53aa03d9c0bf0f2279945322db7fddc
+  MKBeaconXButton: ee5a4f64744c74290dff067b6d460e0134d7efed
   MKBeaconXCustomUI: 29eda37d0b6436a16e3e2e64278726a4a9bbaa67
   MKCustomUIModule: 91646517fc7a90d94dd5578d119fec38d67d6a90
   MLInputDodger: 79a0e420a80d0d3bba122bf2639603cc76609ba8

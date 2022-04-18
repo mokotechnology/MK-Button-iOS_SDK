@@ -29,6 +29,10 @@
             [self operationFailedBlockWithMsg:@"Read Device Name Error" block:failedBlock];
             return;
         }
+        if (![self readDeviceID]) {
+            [self operationFailedBlockWithMsg:@"Read Device ID Error" block:failedBlock];
+            return;
+        }
         moko_dispatch_main_safe(^{
             if (sucBlock) {
                 sucBlock();
@@ -45,6 +49,10 @@
         }
         if (![self configDeviceName]) {
             [self operationFailedBlockWithMsg:@"Config Device Name Error" block:failedBlock];
+            return;
+        }
+        if (![self configDeviceID]) {
+            [self operationFailedBlockWithMsg:@"Config Device ID Error" block:failedBlock];
             return;
         }
         moko_dispatch_main_safe(^{
@@ -81,6 +89,31 @@
     return success;
 }
 
+- (BOOL)readDeviceID {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_readDeviceIDWithSucBlock:^(id  _Nonnull returnData) {
+        success = YES;
+        self.deviceID = returnData[@"result"][@"deviceID"];
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+- (BOOL)configDeviceID {
+    __block BOOL success = NO;
+    [MKBXBInterface bxb_configDeviceID:self.deviceID sucBlock:^{
+        success = YES;
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
 #pragma mark - private method
 - (void)operationFailedBlockWithMsg:(NSString *)msg block:(void (^)(NSError *error))block {
     moko_dispatch_main_safe(^{
@@ -93,6 +126,9 @@
 
 - (BOOL)validParams {
     if (!ValidStr(self.deviceName) || self.deviceName.length > 10) {
+        return NO;
+    }
+    if (!ValidStr(self.deviceID) || (self.deviceID.length % 2 != 0) || self.deviceID.length > 12) {
         return NO;
     }
     return YES;

@@ -78,10 +78,10 @@
             [self operationFailedBlockWithMsg:@"Read Stay Advertising Before Triggered Error" block:failedBlock];
             return;
         }
-        if (![self readDeviceID]) {
-            [self operationFailedBlockWithMsg:@"Read Device ID Error" block:failedBlock];
-            return;
-        }
+//        if (![self readDeviceID]) {
+//            [self operationFailedBlockWithMsg:@"Read Device ID Error" block:failedBlock];
+//            return;
+//        }
         if (self.alarmType == 3) {
             if (![self readAbnormalTime]) {
                 [self operationFailedBlockWithMsg:@"Read Abnormal Time Error" block:failedBlock];
@@ -114,10 +114,10 @@
             [self operationFailedBlockWithMsg:@"Config Stay Advertising Before Triggered Error" block:failedBlock];
             return;
         }
-        if (![self configDeviceID]) {
-            [self operationFailedBlockWithMsg:@"Config Device ID Error" block:failedBlock];
-            return;
-        }
+//        if (![self configDeviceID]) {
+//            [self operationFailedBlockWithMsg:@"Config Device ID Error" block:failedBlock];
+//            return;
+//        }
         if (self.alarmType == 3) {
             if (![self configAbnormalTime]) {
                 [self operationFailedBlockWithMsg:@"Config Abnormal Time Error" block:failedBlock];
@@ -321,9 +321,9 @@
 }
 
 - (BOOL)validParams {
-    if (!ValidStr(self.deviceID) || (self.deviceID.length % 2 != 0) || self.deviceID.length > 12) {
-        return NO;
-    }
+//    if (!ValidStr(self.deviceID) || (self.deviceID.length % 2 != 0) || self.deviceID.length > 12) {
+//        return NO;
+//    }
     if (!ValidStr(self.advInterval) || [self.advInterval integerValue] < 1 || [self.advInterval integerValue] > 500) {
         return NO;
     }

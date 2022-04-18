@@ -80,7 +80,7 @@ MKBXBPowerSaveTriggerTimeCellDelegate>
         return self.section0List.count;
     }
     if (section == 1) {
-        return self.section1List.count;
+        return (self.dataModel.isOn ? self.section1List.count : 0);
     }
     return 0;
 }
@@ -109,6 +109,7 @@ MKBXBPowerSaveTriggerTimeCellDelegate>
         self.dataModel.isOn = isOn;
         MKTextSwitchCellModel *cellModel = self.section0List[0];
         cellModel.isOn = isOn;
+        [self.tableView mk_reloadSection:1 withRowAnimation:UITableViewRowAnimationNone];
         return;
     }
 }

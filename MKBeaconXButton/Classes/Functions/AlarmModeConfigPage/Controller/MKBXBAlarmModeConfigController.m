@@ -199,8 +199,13 @@ MKBXBAbnormalInactivityTimeCellDelegate>
     if (index == 1) {
         //Advertising time
         self.dataModel.alarmMode_advTime = value;
-        MKTextFieldCellModel *cellModel = self.section8List[0];
-        cellModel.textFieldValue = value;
+        MKTextFieldCellModel *cellModel1 = self.section8List[0];
+        cellModel1.textFieldValue = value;
+        if (self.pageType == MKBXBAlarmModeConfigControllerType_abnormal) {
+            MKBXBAbnormalInactivityTimeCellModel *cellModel2 = self.section7List[0];
+            cellModel2.advTime = value;
+            [self.tableView mk_reloadSection:7 withRowAnimation:UITableViewRowAnimationNone];
+        }
         return;
     }
     if (index == 2) {
@@ -355,7 +360,9 @@ MKBXBAbnormalInactivityTimeCellDelegate>
         return self.section1List.count;
     }
     if (section == 2 && self.dataModel.advIsOn) {
-        return self.section2List.count;
+        //隐藏deviceID
+        return 0;
+//        return self.section2List.count;
     }
     if (section == 3 && self.dataModel.advIsOn) {
         return self.section3List.count;
@@ -501,6 +508,7 @@ MKBXBAbnormalInactivityTimeCellDelegate>
 - (void)loadSection7Datas {
     MKBXBAbnormalInactivityTimeCellModel *cellModel = [[MKBXBAbnormalInactivityTimeCellModel alloc] init];
     cellModel.time = self.dataModel.abnormalTime;
+    cellModel.advTime = self.dataModel.alarmMode_advTime;
     [self.section7List addObject:cellModel];
 }
 

@@ -93,6 +93,10 @@
             {
               "name": "NTPickerView",
               "source_files": "MKBeaconXButton/Classes/Expand/View/NTPickerView/**"
+            },
+            {
+              "name": "DeviceIDCell",
+              "source_files": "MKBeaconXButton/Classes/Expand/View/DeviceIDCell/**"
             }
           ]
         }

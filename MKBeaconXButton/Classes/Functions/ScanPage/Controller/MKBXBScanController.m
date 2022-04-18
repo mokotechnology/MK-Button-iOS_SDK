@@ -30,6 +30,8 @@
 #import "MKBXScanFilterView.h"
 #import "MKBXScanSearchButton.h"
 
+#import "MKBLEBaseCentralManager.h"
+
 #import "MKBXBSDK.h"
 
 #import "MKBXBConnectManager.h"
@@ -229,8 +231,14 @@ MKBXBTabBarControllerDelegate>
 
 #pragma mark - event method
 - (void)refreshButtonPressed {
-    if ([MKBXBCentralManager shared].centralStatus != mk_bxb_centralManagerStatusEnable) {
-        [self.view showCentralToast:@"The current system of bluetooth is not available!"];
+    if ([MKBLEBaseCentralManager shared].centralManager.state == CBManagerStateUnauthorized) {
+        //用户未授权
+        [self showAuthorizationAlert];
+        return;
+    }
+    if ([MKBLEBaseCentralManager shared].centralManager.state == CBManagerStatePoweredOff) {
+        //用户关闭了系统蓝牙
+        [self showBLEDisable];
         return;
     }
     self.refreshButton.selected = !self.refreshButton.selected;
@@ -246,22 +254,6 @@ MKBXBTabBarControllerDelegate>
     [self.titleLabel setText:[NSString stringWithFormat:@"DEVICE(%@)",[NSString stringWithFormat:@"%ld",(long)self.dataList.count]]];
     [self.refreshIcon.layer addAnimation:[MKCustomUIAdopter refreshAnimation:2.f] forKey:@"mk_refreshAnimationKey"];
     [[MKBXBCentralManager shared] startScan];
-}
-
-#pragma mark - notice method
-- (void)showCentralStatus{
-    if ([MKBXBCentralManager shared].centralStatus != mk_bxb_centralManagerStatusEnable) {
-        NSString *msg = @"The current system of bluetooth is not available!";
-        MKAlertController *alertController = [MKAlertController alertControllerWithTitle:@"Dismiss"
-                                                                                 message:msg
-                                                                          preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *moreAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
-        [alertController addAction:moreAction];
-        
-        [self presentViewController:alertController animated:YES completion:nil];
-        return;
-    }
-    [self refreshButtonPressed];
 }
 
 #pragma mark - 刷新
@@ -489,7 +481,30 @@ MKBXBTabBarControllerDelegate>
     self.searchButton.dataModel = self.buttonModel;
     [self runloopObserver];
     [MKBXBCentralManager shared].delegate = self;
-    [self performSelector:@selector(showCentralStatus) withObject:nil afterDelay:.5f];
+    [self performSelector:@selector(refreshButtonPressed) withObject:nil afterDelay:.5f];
+}
+
+#pragma mark - private method
+- (void)showAuthorizationAlert {
+    NSString *promtpMessage = @"This function requires Bluetooth authorization, please enable MKLoRa permission in Settings-Privacy-Bluetooth.";
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@""
+                                                                             message:promtpMessage
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *moreAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    [alertController addAction:moreAction];
+    
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)showBLEDisable {
+    NSString *msg = @"The current system of bluetooth is not available!";
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@""
+                                                                             message:msg
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *moreAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    [alertController addAction:moreAction];
+    
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 #pragma mark - UI

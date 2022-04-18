@@ -23,6 +23,10 @@
 
 #import "MKBXBConnectManager.h"
 
+#import "MKBXBInterface+MKBXBConfig.h"
+
+#import "MKBXBDeviceIDCell.h"
+
 #import "MKBXBDevicePageModel.h"
 
 #import "MKBXBQuickSwitchController.h"
@@ -31,7 +35,8 @@
 
 @interface MKBXBDeviceController ()<UITableViewDelegate,
 UITableViewDataSource,
-MKTextFieldCellDelegate>
+MKTextFieldCellDelegate,
+MKBXBDeviceIDCellDelegate>
 
 @property (nonatomic, strong)MKBaseTableView *tableView;
 
@@ -44,6 +49,8 @@ MKTextFieldCellDelegate>
 @property (nonatomic, strong)NSMutableArray *section3List;
 
 @property (nonatomic, strong)NSMutableArray *section4List;
+
+@property (nonatomic, strong)NSMutableArray *section5List;
 
 @property (nonatomic, strong)MKBXBDevicePageModel *dataModel;
 
@@ -134,7 +141,7 @@ MKTextFieldCellDelegate>
 
 #pragma mark - UITableViewDataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 5;
+    return 6;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -152,6 +159,9 @@ MKTextFieldCellDelegate>
     }
     if (section == 4) {
         return self.section4List.count;
+    }
+    if (section == 5) {
+        return self.section5List.count;
     }
     return 0;
 }
@@ -177,8 +187,14 @@ MKTextFieldCellDelegate>
         cell.dataModel = self.section3List[indexPath.row];
         return cell;
     }
-    MKTextFieldCell *cell = [MKTextFieldCell initCellWithTableView:tableView];
-    cell.dataModel = self.section4List[indexPath.row];
+    if (indexPath.section == 4) {
+        MKTextFieldCell *cell = [MKTextFieldCell initCellWithTableView:tableView];
+        cell.dataModel = self.section4List[indexPath.row];
+        cell.delegate = self;
+        return cell;
+    }
+    MKBXBDeviceIDCell *cell = [MKBXBDeviceIDCell initCellWithTableView:self.tableView];
+    cell.dataModel = self.section5List[indexPath.row];
     cell.delegate = self;
     return cell;
 }
@@ -195,6 +211,13 @@ MKTextFieldCellDelegate>
         cellModel.textFieldValue = value;
         return;
     }
+}
+
+#pragma mark - MKBXBDeviceIDCellDelegate
+- (void)bxb_deviceIDChanged:(NSString *)text {
+    self.dataModel.deviceID = text;
+    MKBXBDeviceIDCellModel *cellModel = self.section5List[0];
+    cellModel.deviceID = text;
 }
 
 #pragma mark - note
@@ -356,8 +379,12 @@ MKTextFieldCellDelegate>
     [self.dataModel readDataWithSucBlock:^{
         @strongify(self);
         [[MKHudManager share] hide];
-        MKTextFieldCellModel *cellModel = self.section4List[0];
-        cellModel.textFieldValue = self.dataModel.deviceName;
+        MKTextFieldCellModel *cellModel1 = self.section4List[0];
+        cellModel1.textFieldValue = self.dataModel.deviceName;
+        
+        MKBXBDeviceIDCellModel *cellModel2 = self.section5List[0];
+        cellModel2.deviceID = self.dataModel.deviceID;
+        
         [self.tableView reloadData];
     } failedBlock:^(NSError * _Nonnull error) {
         @strongify(self);
@@ -367,15 +394,50 @@ MKTextFieldCellDelegate>
 }
 
 - (void)commandPowerOff {
-    
+    [[MKHudManager share] showHUDWithTitle:@"Setting..."
+                                     inView:self.view
+                              isPenetration:NO];
+    [MKBXBInterface bxb_powerOffWithSucBlock:^{
+        [[MKHudManager share] hide];
+    } failedBlock:^(NSError * _Nonnull error) {
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
+    }];
 }
 
 - (void)commandResetDevice {
-    
+    [[MKHudManager share] showHUDWithTitle:@"Setting..."
+                                     inView:self.view
+                              isPenetration:NO];
+    [MKBXBInterface bxb_factoryResetWithSucBlock:^{
+        [[MKHudManager share] hide];
+    } failedBlock:^(NSError * _Nonnull error) {
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
+    }];
 }
 
 - (void)setPasswordToDevice {
-    
+    NSString *password = self.passwordTextField.text;
+    NSString *confirmpassword = self.confirmTextField.text;
+    if (!ValidStr(password) || !ValidStr(confirmpassword) || password.length > 16 || confirmpassword.length > 16) {
+        [self.view showCentralToast:@"Length error."];
+        return;
+    }
+    if (![password isEqualToString:confirmpassword]) {
+        [self.view showCentralToast:@"Password not match! Please try again."];
+        return;
+    }
+    [[MKHudManager share] showHUDWithTitle:@"Setting..."
+                                     inView:self.view
+                              isPenetration:NO];
+    [MKBXBInterface bxb_configConnectPassword:password sucBlock:^{
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:@"Success"];
+    } failedBlock:^(NSError * _Nonnull error) {
+        [[MKHudManager share] hide];
+        [self.view showCentralToast:error.userInfo[@"errorInfo"]];
+    }];
 }
 
 #pragma mark - loadSectionDatas
@@ -385,6 +447,7 @@ MKTextFieldCellDelegate>
     [self loadSection2Datas];
     [self loadSection3Datas];
     [self loadSection4Datas];
+    [self loadSection5Datas];
     
     [self.tableView reloadData];
 }
@@ -435,6 +498,11 @@ MKTextFieldCellDelegate>
     cellModel.textFieldType = mk_normal;
     cellModel.maxLength = 10;
     [self.section4List addObject:cellModel];
+}
+
+- (void)loadSection5Datas {
+    MKBXBDeviceIDCellModel *cellModel = [[MKBXBDeviceIDCellModel alloc] init];
+    [self.section5List addObject:cellModel];
 }
 
 #pragma mark - UI
@@ -494,6 +562,13 @@ MKTextFieldCellDelegate>
         _section4List = [NSMutableArray array];
     }
     return _section4List;
+}
+
+- (NSMutableArray *)section5List {
+    if (!_section5List) {
+        _section5List = [NSMutableArray array];
+    }
+    return _section5List;
 }
 
 - (MKBXBDevicePageModel *)dataModel {

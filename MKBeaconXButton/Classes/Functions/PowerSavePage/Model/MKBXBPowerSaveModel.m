@@ -43,13 +43,19 @@
 
 - (void)configDataWithSucBlock:(void (^)(void))sucBlock failedBlock:(void (^)(NSError *error))failedBlock {
     dispatch_async(self.readQueue, ^{
+        if (![self validParams]) {
+            [self operationFailedBlockWithMsg:@"Params Error" block:failedBlock];
+            return;
+        }
         if (![self configModeStatus]) {
             [self operationFailedBlockWithMsg:@"Config Power saving mode error" block:failedBlock];
             return;
         }
-        if (![self configTriggerTime]) {
-            [self operationFailedBlockWithMsg:@"Config Static trigger time error" block:failedBlock];
-            return;
+        if (self.isOn) {
+            if (![self configTriggerTime]) {
+                [self operationFailedBlockWithMsg:@"Config Static trigger time error" block:failedBlock];
+                return;
+            }
         }
         moko_dispatch_main_safe(^{
             if (sucBlock) {
@@ -118,6 +124,15 @@
                                                 userInfo:@{@"errorInfo":msg}];
         block(error);
     })
+}
+
+- (BOOL)validParams {
+    if (self.isOn) {
+        if (!ValidStr(self.triggerTime) || [self.triggerTime integerValue] < 1 || [self.triggerTime integerValue] > 65535) {
+            return NO;
+        }
+    }
+    return YES;
 }
 
 #pragma mark - getter

@@ -90,7 +90,7 @@
         return;
     }
     self.textField.text = SafeStr(_dataModel.time);
-    self.noteMsgLabel.text = [NSString stringWithFormat:@"*After device keep static for %@s, abnormal inactivity alarm will be triggered and start advertising for %@s.",SafeStr(_dataModel.time),SafeStr(_dataModel.time)];
+    self.noteMsgLabel.text = [NSString stringWithFormat:@"*After device keep static for %@s, abnormal inactivity alarm will be triggered and start advertising for %@s.",SafeStr(_dataModel.time),SafeStr(_dataModel.advTime)];
     [self setNeedsLayout];
 }
 
@@ -115,7 +115,7 @@
         @weakify(self);
         _textField.textChangedBlock = ^(NSString * _Nonnull text) {
             @strongify(self);
-            self.noteMsgLabel.text = [NSString stringWithFormat:@"*After device keep static for %@s, abnormal inactivity alarm will be triggered and start advertising for %@s.",text,text];
+            self.noteMsgLabel.text = [NSString stringWithFormat:@"*After device keep static for %@s, abnormal inactivity alarm will be triggered and start advertising for %@s.",text,self.dataModel.advTime];
             if ([self.delegate respondsToSelector:@selector(bxb_abnormalInactivityTimeChanged:)]) {
                 [self.delegate bxb_abnormalInactivityTimeChanged:text];
             }

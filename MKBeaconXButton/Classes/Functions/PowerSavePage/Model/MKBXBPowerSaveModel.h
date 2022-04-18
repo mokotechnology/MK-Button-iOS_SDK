@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign)BOOL isOn;
 
+/// 1~65535
 @property (nonatomic, copy)NSString *triggerTime;
 
 - (void)readDataWithSucBlock:(void (^)(void))sucBlock failedBlock:(void (^)(NSError *error))failedBlock;

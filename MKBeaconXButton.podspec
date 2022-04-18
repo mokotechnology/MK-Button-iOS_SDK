@@ -75,6 +75,9 @@ TODO: Add long description of the pod here.
       sss.subspec 'NTPickerView' do |ssss|
         ssss.source_files = 'MKBeaconXButton/Classes/Expand/View/NTPickerView/**'
       end
+      sss.subspec 'DeviceIDCell' do |ssss|
+        ssss.source_files = 'MKBeaconXButton/Classes/Expand/View/DeviceIDCell/**'
+      end
     end
     
     ss.dependency 'MKBaseModuleLibrary'
