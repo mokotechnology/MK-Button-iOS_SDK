@@ -41,7 +41,7 @@
           failedBlock:(void (^)(NSError *error))failedBlock {
     dispatch_async(self.connectQueue, ^{
         NSDictionary *dic = @{};
-        if (ValidStr(password) && password.length < 16) {
+        if (ValidStr(password) && password.length <= 16) {
             //有密码登录
             dic = [self connectDevice:peripheral password:password];
             self.needPassword = YES;

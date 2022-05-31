@@ -38,9 +38,6 @@
 - (void)dealloc {
     NSLog(@"MKBXBTabBarController销毁");
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [MKBLEBaseLogManager deleteLogWithFileName:@"/Single press trigger event"];
-    [MKBLEBaseLogManager deleteLogWithFileName:@"/Double press trigger event"];
-    [MKBLEBaseLogManager deleteLogWithFileName:@"/Long press trigger event"];
 }
 
 - (void)viewDidDisappear:(BOOL)animated{
@@ -111,14 +108,13 @@
         return;
     }
     if ([type isEqualToString:@"03"]) {
-        [self showAlertWithMsg:@"Beacon is disconnected." title:@"Reset success!"];
-        return;
-    }
-    if ([type isEqualToString:@"04"]) {
         [self showAlertWithMsg:@"Factory reset successfully!Please reconnect the device." title:@"Factory Reset"];
         return;
     }
-    
+    if ([type isEqualToString:@"04"]) {
+        [self showAlertWithMsg:@"Beacon is disconnected." title:@"Reset success!"];
+        return;
+    }
 }
 
 - (void)centralManagerStateChanged{

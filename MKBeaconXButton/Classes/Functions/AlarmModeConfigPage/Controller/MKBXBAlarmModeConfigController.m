@@ -356,21 +356,24 @@ MKBXBAbnormalInactivityTimeCellDelegate>
     if (section == 0) {
         return self.section0List.count;
     }
-    if (section == 1 && self.dataModel.advIsOn) {
+    if (!self.dataModel.advIsOn) {
+        return 0;
+    }
+    if (section == 1) {
         return self.section1List.count;
     }
-    if (section == 2 && self.dataModel.advIsOn) {
+    if (section == 2) {
         //隐藏deviceID
         return 0;
 //        return self.section2List.count;
     }
-    if (section == 3 && self.dataModel.advIsOn) {
+    if (section == 3) {
         return self.section3List.count;
     }
-    if (section == 4 && self.dataModel.advIsOn) {
+    if (section == 4) {
         return self.section4List.count;
     }
-    if (section == 5 && self.dataModel.advIsOn) {
+    if (section == 5) {
         return self.section5List.count;
     }
     if (section == 6) {

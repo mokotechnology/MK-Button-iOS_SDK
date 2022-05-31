@@ -31,6 +31,7 @@
 #import "MKBXScanSearchButton.h"
 
 #import "MKBLEBaseCentralManager.h"
+#import "MKBLEBaseLogManager.h"
 
 #import "MKBXBSDK.h"
 
@@ -416,17 +417,24 @@ MKBXBTabBarControllerDelegate>
 - (void)startConnectPeripheral:(CBPeripheral *)peripheral needPassword:(BOOL)needPassword {
     if (needPassword) {
         NSString *password = self.passwordField.text;
-        if (!ValidStr(password) || password.length > 16) {
+        if (!ValidStr(password)) {
+            [self.view showCentralToast:@"Password cannot be empty."];
+            return;
+        }
+        if (password.length > 16) {
             [self.view showCentralToast:@"No more than 16 characters."];
             return;
         }
     }
     [[MKHudManager share] showHUDWithTitle:@"Connecting..." inView:self.view isPenetration:NO];
     [[MKBXBConnectManager shared] connectDevice:peripheral password:(needPassword ? self.passwordField.text : @"") sucBlock:^{
-        if (ValidStr(self.passwordField.text) && self.passwordField.text.length < 16) {
+        if (ValidStr(self.passwordField.text) && self.passwordField.text.length <= 16) {
             [[NSUserDefaults standardUserDefaults] setObject:self.passwordField.text forKey:localPasswordKey];
         }
         [[MKHudManager share] hide];
+        [MKBLEBaseLogManager deleteLogWithFileName:@"/Single press trigger event"];
+        [MKBLEBaseLogManager deleteLogWithFileName:@"/Double press trigger event"];
+        [MKBLEBaseLogManager deleteLogWithFileName:@"/Long press trigger event"];
         [self performSelector:@selector(pushTabBarPage) withObject:nil afterDelay:0.6f];
     } failedBlock:^(NSError * _Nonnull error) {
         [[MKHudManager share] hide];

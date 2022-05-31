@@ -99,8 +99,8 @@
     
     NSString *text = [NSString stringWithFormat:@"\n%@\t\t%@",timestamp,state];
     [self saveDataToLocal:text];
-    self.textView.text = [self.textView.text stringByAppendingString:text];
-    [self.textView scrollRangeToVisible:NSMakeRange(self.textView.text.length, 1)];
+    self.textView.text = [text stringByAppendingString:self.textView.text];
+//    [self.textView scrollRangeToVisible:NSMakeRange(self.textView.text.length, 1)];
 }
 
 #pragma mark - event method
