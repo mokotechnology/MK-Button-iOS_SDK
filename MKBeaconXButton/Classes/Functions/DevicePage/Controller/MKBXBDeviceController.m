@@ -425,7 +425,7 @@ MKBXBDeviceIDCellDelegate>
         return;
     }
     if (![password isEqualToString:confirmpassword]) {
-        [self.view showCentralToast:@"Password not match! Please try again."];
+        [self.view showCentralToast:@"Password do not match! Please try again."];
         return;
     }
     [[MKHudManager share] showHUDWithTitle:@"Setting..."

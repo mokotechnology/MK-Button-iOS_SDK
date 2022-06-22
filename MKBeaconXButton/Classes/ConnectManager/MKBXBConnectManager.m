@@ -65,6 +65,10 @@
             [self operationFailedMsg:@"Read Sensor Error" completeBlock:failedBlock];
             return;
         }
+        if (![self configDate]) {
+            [self operationFailedMsg:@"Sync Time Failed" completeBlock:failedBlock];
+            return;
+        }
         moko_dispatch_main_safe(^{
             if (sucBlock) {
                 sucBlock();
@@ -130,6 +134,20 @@
         self.threeSensor = [returnData[@"result"][@"threeAxis"] boolValue];
         self.htSensor = [returnData[@"result"][@"htSensor"] boolValue];
         self.lightSensor = [returnData[@"result"][@"lightSensor"] boolValue];
+        dispatch_semaphore_signal(self.semaphore);
+    } failedBlock:^(NSError * _Nonnull error) {
+        dispatch_semaphore_signal(self.semaphore);
+    }];
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    return success;
+}
+
+- (BOOL)configDate {
+    __block BOOL success = NO;
+    NSDate *zoneDate = [NSDate dateWithTimeIntervalSinceNow:-8*60*60];
+    NSTimeInterval interval = [zoneDate timeIntervalSince1970];
+    [MKBXBInterface bxb_configDeviceTime:(interval * 1000) sucBlock:^{
+        success = YES;
         dispatch_semaphore_signal(self.semaphore);
     } failedBlock:^(NSError * _Nonnull error) {
         dispatch_semaphore_signal(self.semaphore);

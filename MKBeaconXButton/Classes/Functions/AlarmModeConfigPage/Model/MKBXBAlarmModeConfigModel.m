@@ -176,7 +176,7 @@
         self.alarmMode_advTime = returnData[@"result"][@"advTime"];
         self.alarmMode_advInterval = returnData[@"result"][@"advInterval"];
         self.alarmMode_txPower = [self fetchTxPowerValueString:returnData[@"result"][@"txPower"]];
-        self.alarmMode_rssi = [returnData[@"result"][@"rssi"] integerValue];
+//        self.alarmMode_rssi = [returnData[@"result"][@"rssi"] integerValue];
         dispatch_semaphore_signal(self.semaphore);
     } failedBlock:^(NSError * _Nonnull error) {
         dispatch_semaphore_signal(self.semaphore);
@@ -190,7 +190,7 @@
     MKBXBChannelTriggerParamsModel *paramModel = [[MKBXBChannelTriggerParamsModel alloc] init];
     paramModel.alarmType = self.alarmType;
     paramModel.alarm = self.alarmMode;
-    paramModel.rssi = self.alarmMode_rssi;
+    paramModel.rssi = self.rangingData;
     paramModel.advInterval = self.alarmMode_advInterval;
     paramModel.advertisingTime = self.alarmMode_advTime;
     paramModel.txPower = self.alarmMode_txPower;

@@ -104,7 +104,7 @@
     //04:关机
     self.disconnectType = YES;
     if ([type isEqualToString:@"02"]) {
-        [self showAlertWithMsg:@"Password changed successfully! Please reconnect the device." title:@"Change Password"];
+        [self showAlertWithMsg:@"Modify password success! Please reconnect the Device." title:@""];
         return;
     }
     if ([type isEqualToString:@"03"]) {
@@ -112,7 +112,8 @@
         return;
     }
     if ([type isEqualToString:@"04"]) {
-        [self showAlertWithMsg:@"Beacon is disconnected." title:@"Reset success!"];
+        [self gotoScanPage];
+//        [self showAlertWithMsg:@"Beacon is disconnected." title:@"Reset success!"];
         return;
     }
 }

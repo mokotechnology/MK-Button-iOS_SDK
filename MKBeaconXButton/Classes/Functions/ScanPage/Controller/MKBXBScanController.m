@@ -489,7 +489,14 @@ MKBXBTabBarControllerDelegate>
     self.searchButton.dataModel = self.buttonModel;
     [self runloopObserver];
     [MKBXBCentralManager shared].delegate = self;
-    [self performSelector:@selector(refreshButtonPressed) withObject:nil afterDelay:.5f];
+    NSNumber *firstInstall = [[NSUserDefaults standardUserDefaults] objectForKey:@"mk_bxb_firstInstall"];
+    NSTimeInterval afterTime = 0.5f;
+    if (!ValidNum(firstInstall)) {
+        //第一次安装
+        [[NSUserDefaults standardUserDefaults] setObject:@(NO) forKey:@"mk_bxb_firstInstall"];
+        afterTime = 3.5f;
+    }
+    [self performSelector:@selector(refreshButtonPressed) withObject:nil afterDelay:afterTime];
 }
 
 #pragma mark - private method
