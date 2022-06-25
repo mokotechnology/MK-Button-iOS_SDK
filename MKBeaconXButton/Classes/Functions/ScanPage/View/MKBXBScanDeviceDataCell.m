@@ -170,7 +170,7 @@ static CGFloat const batteryIconHeight = 25.f;
         make.centerY.mas_equalTo(self.centerBackView.mas_centerY);
         make.height.mas_equalTo(batteryIconHeight);
     }];
-    [self.devieIDLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.devieIDLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.nameLabel.mas_left);
         make.right.mas_equalTo(self.timeLabel.mas_left).mas_offset(-5.f);
         make.centerY.mas_equalTo(self.batteryIcon.mas_centerY);
@@ -237,7 +237,7 @@ static CGFloat const batteryIconHeight = 25.f;
     self.txPowerLabel.text = (ValidStr(_dataModel.txPower) ? @"Tx Power:" : @"");
     self.txPowerValueLabel.text = (ValidStr(_dataModel.txPower) ? [_dataModel.txPower stringByAppendingString:@"dBm"] : @"");
     
-    self.timeLabel.text = _dataModel.displayTime;
+//    self.timeLabel.text = _dataModel.displayTime;
     self.rssiLabel.text = [SafeStr(_dataModel.rssi) stringByAppendingString:@"dBm"];
     self.nameLabel.text = (ValidStr(_dataModel.deviceName) ? _dataModel.deviceName : @"N/A");
     NSString *macAddress = (ValidStr(_dataModel.macAddress) ? _dataModel.macAddress : @"N/A");

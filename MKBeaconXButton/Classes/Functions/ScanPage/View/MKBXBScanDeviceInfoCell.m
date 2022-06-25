@@ -61,49 +61,49 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    [self.leftIcon mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.leftIcon mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(10.f);
         make.width.mas_equalTo(7.f);
         make.top.mas_equalTo(10.f);
         make.height.mas_equalTo(7.f);
     }];
-    [self.msgLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.msgLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.leftIcon.mas_right).mas_offset(5.f);
         make.right.mas_equalTo(-10.f);
         make.centerY.mas_equalTo(self.leftIcon.mas_centerY);
         make.height.mas_equalTo(MKFont(15).lineHeight);
     }];
-    [self.rangingLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.rangingLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.msgLabel.mas_left);
         make.right.mas_equalTo(self.contentView.mas_centerX).mas_offset(-5.f);
         make.top.mas_equalTo(self.msgLabel.mas_bottom).mas_offset(5.f);
         make.height.mas_equalTo(MKFont(12.f).lineHeight);
     }];
-    [self.rangingValueLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.rangingValueLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.contentView.mas_centerX).mas_offset(5.f);
         make.right.mas_equalTo(-10.f);
         make.centerY.mas_equalTo(self.rangingLabel.mas_centerY);
         make.height.mas_equalTo(MKFont(12.f).lineHeight);
     }];
-    [self.accelerationLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.accelerationLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.msgLabel.mas_left);
         make.right.mas_equalTo(self.contentView.mas_centerX).mas_offset(-5.f);
         make.top.mas_equalTo(self.rangingValueLabel.mas_bottom).mas_offset(5.f);
         make.height.mas_equalTo(MKFont(12.f).lineHeight);
     }];
-    [self.xDataLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.xDataLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.contentView.mas_centerX).mas_offset(5.f);
         make.right.mas_equalTo(-10.f);
         make.centerY.mas_equalTo(self.accelerationLabel.mas_centerY);
         make.height.mas_equalTo(MKFont(12.f).lineHeight);
     }];
-    [self.yDataLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.yDataLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.contentView.mas_centerX).mas_offset(5.f);
         make.right.mas_equalTo(-10.f);
         make.top.mas_equalTo(self.xDataLabel.mas_bottom).mas_offset(5.f);
         make.height.mas_equalTo(MKFont(12.f).lineHeight);
     }];
-    [self.zDataLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.zDataLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.contentView.mas_centerX).mas_offset(5.f);
         make.right.mas_equalTo(-10.f);
         make.top.mas_equalTo(self.yDataLabel.mas_bottom).mas_offset(5.f);

@@ -220,7 +220,7 @@ static dispatch_once_t onceToken;
 - (void)startScan {
     [[MKBLEBaseCentralManager shared] scanForPeripheralsWithServices:@[[CBUUID UUIDWithString:@"FEE0"],
                                                                        [CBUUID UUIDWithString:@"EA00"]]
-                                                             options:@{CBCentralManagerScanOptionAllowDuplicatesKey:@(YES)}];
+                                                             options:nil];
 }
 
 - (void)stopScan {

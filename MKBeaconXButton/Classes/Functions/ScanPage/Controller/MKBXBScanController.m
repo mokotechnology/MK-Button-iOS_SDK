@@ -25,7 +25,7 @@
 #import "MKCustomUIAdopter.h"
 #import "MKProgressView.h"
 #import "MKTableSectionLineHeader.h"
-#import "MKAlertController.h"
+#import "MKAlertView.h"
 
 #import "MKBXScanFilterView.h"
 #import "MKBXScanSearchButton.h"
@@ -54,7 +54,7 @@ static CGFloat const offset_X = 15.f;
 static CGFloat const searchButtonHeight = 40.f;
 static CGFloat const headerViewHeight = 90.f;
 
-static NSTimeInterval const kRefreshInterval = 0.5f;
+static NSTimeInterval const kRefreshInterval = 1.f;
 
 @interface MKBXBScanController ()<UITableViewDelegate,
 UITableViewDataSource,
@@ -81,8 +81,6 @@ MKBXBTabBarControllerDelegate>
 @property (nonatomic, assign)CFRunLoopObserverRef observerRef;
 //扫描到新的设备不能立即刷新列表，降低刷新频率
 @property (nonatomic, assign)BOOL isNeedRefresh;
-
-@property (nonatomic, strong)UITextField *passwordField;
 
 /// 保存当前密码输入框ascii字符部分
 @property (nonatomic, copy)NSString *asciiText;
@@ -380,34 +378,34 @@ MKBXBTabBarControllerDelegate>
 }
 
 - (void)connectDeviceWithPassword:(CBPeripheral *)peripheral {
-    NSString *msg = @"Please enter connection password.";
-    MKAlertController *alertController = [MKAlertController alertControllerWithTitle:@"Enter password"
-                                                                             message:msg
-                                                                      preferredStyle:UIAlertControllerStyleAlert];
     @weakify(self);
-    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-        @strongify(self);
-        self.passwordField = nil;
-        self.passwordField = textField;
-        NSString *localPassword = [[NSUserDefaults standardUserDefaults] objectForKey:localPasswordKey];
-        textField.text = localPassword;
-        self.asciiText = localPassword;
-        self.passwordField.placeholder = @"No more than 16 characters.";
-        [textField addTarget:self action:@selector(passwordInput) forControlEvents:UIControlEventEditingChanged];
-    }];
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    MKAlertViewAction *cancelAction = [[MKAlertViewAction alloc] initWithTitle:@"Cancel" handler:^{
         @strongify(self);
         self.refreshButton.selected = NO;
         [self refreshButtonPressed];
     }];
-    [alertController addAction:cancelAction];
-    UIAlertAction *moreAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    
+    MKAlertViewAction *confirmAction = [[MKAlertViewAction alloc] initWithTitle:@"OK" handler:^{
         @strongify(self);
         [self startConnectPeripheral:peripheral needPassword:YES];
     }];
-    [alertController addAction:moreAction];
+    NSString *localPassword = [[NSUserDefaults standardUserDefaults] objectForKey:localPasswordKey];
+    self.asciiText = localPassword;
+    MKAlertViewTextField *textField = [[MKAlertViewTextField alloc] initWithTextValue:SafeStr(localPassword)
+                                                                          placeholder:@"No more than 16 characters."
+                                                                        textFieldType:mk_normal
+                                                                            maxLength:16
+                                                                              handler:^(NSString * _Nonnull text) {
+        @strongify(self);
+        self.asciiText = text;
+    }];
     
-    [self presentViewController:alertController animated:YES completion:nil];
+    NSString *msg = @"Please enter connection password.";
+    MKAlertView *alertView = [[MKAlertView alloc] init];
+    [alertView addAction:cancelAction];
+    [alertView addAction:confirmAction];
+    [alertView addTextField:textField];
+    [alertView showAlertWithTitle:@"Enter password" message:msg notificationName:@"mk_bxb_needDismissAlert"];
 }
 
 - (void)connectDeviceWithoutPassword:(CBPeripheral *)peripheral {
@@ -416,7 +414,7 @@ MKBXBTabBarControllerDelegate>
 
 - (void)startConnectPeripheral:(CBPeripheral *)peripheral needPassword:(BOOL)needPassword {
     if (needPassword) {
-        NSString *password = self.passwordField.text;
+        NSString *password = self.asciiText;
         if (!ValidStr(password)) {
             [self.view showCentralToast:@"Password cannot be empty."];
             return;
@@ -427,9 +425,9 @@ MKBXBTabBarControllerDelegate>
         }
     }
     [[MKHudManager share] showHUDWithTitle:@"Connecting..." inView:self.view isPenetration:NO];
-    [[MKBXBConnectManager shared] connectDevice:peripheral password:(needPassword ? self.passwordField.text : @"") sucBlock:^{
-        if (ValidStr(self.passwordField.text) && self.passwordField.text.length <= 16) {
-            [[NSUserDefaults standardUserDefaults] setObject:self.passwordField.text forKey:localPasswordKey];
+    [[MKBXBConnectManager shared] connectDevice:peripheral password:(needPassword ? self.asciiText : @"") sucBlock:^{
+        if (ValidStr(self.asciiText) && self.asciiText.length <= 16) {
+            [[NSUserDefaults standardUserDefaults] setObject:self.asciiText forKey:localPasswordKey];
         }
         [[MKHudManager share] hide];
         [MKBLEBaseLogManager deleteLogWithFileName:@"/Single press trigger event"];
@@ -456,32 +454,6 @@ MKBXBTabBarControllerDelegate>
 - (void)connectFailed {
     self.refreshButton.selected = NO;
     [self refreshButtonPressed];
-}
-
-/**
- 监听输入的密码
- */
-- (void)passwordInput{
-    NSString *inputValue = self.passwordField.text;
-    if (!ValidStr(inputValue)) {
-        self.passwordField.text = @"";
-        self.asciiText = @"";
-        return;
-    }
-    NSInteger strLen = inputValue.length;
-    NSInteger dataLen = [inputValue dataUsingEncoding:NSUTF8StringEncoding].length;
-    NSString *currentStr = self.asciiText;
-    if (dataLen == strLen) {
-        //当前输入是ascii字符
-        currentStr = inputValue;
-    }
-    if (currentStr.length > 16) {
-        self.passwordField.text = [currentStr substringToIndex:16];
-        self.asciiText = [currentStr substringToIndex:16];
-    }else {
-        self.passwordField.text = currentStr;
-        self.asciiText = currentStr;
-    }
 }
 
 #pragma mark -

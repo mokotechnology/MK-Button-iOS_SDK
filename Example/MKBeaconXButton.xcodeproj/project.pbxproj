@@ -468,7 +468,7 @@
 			baseConfigurationReference = 8EA9A44D775466E36C51E17B /* Pods-MKBeaconXButton_Example.adhoc.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CURRENT_PROJECT_VERSION = 2022062101;
+				CURRENT_PROJECT_VERSION = 2022062401;
 				DEVELOPMENT_TEAM = R558LEUW2T;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MKBeaconXButton/MKBeaconXButton-Prefix.pch";
@@ -614,7 +614,7 @@
 			baseConfigurationReference = C755D03BC94C537D847A3A23 /* Pods-MKBeaconXButton_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CURRENT_PROJECT_VERSION = 2022062101;
+				CURRENT_PROJECT_VERSION = 2022062401;
 				DEVELOPMENT_TEAM = R558LEUW2T;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MKBeaconXButton/MKBeaconXButton-Prefix.pch";
@@ -635,7 +635,7 @@
 			baseConfigurationReference = 2ED0D98C36440773690514D6 /* Pods-MKBeaconXButton_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CURRENT_PROJECT_VERSION = 2022062101;
+				CURRENT_PROJECT_VERSION = 2022062401;
 				DEVELOPMENT_TEAM = R558LEUW2T;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MKBeaconXButton/MKBeaconXButton-Prefix.pch";

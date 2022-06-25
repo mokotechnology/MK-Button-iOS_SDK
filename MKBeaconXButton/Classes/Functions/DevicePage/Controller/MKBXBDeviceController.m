@@ -19,7 +19,7 @@
 #import "MKHudManager.h"
 #import "MKNormalTextCell.h"
 #import "MKTextFieldCell.h"
-#import "MKAlertController.h"
+#import "MKAlertView.h"
 
 #import "MKBXBConnectManager.h"
 
@@ -55,10 +55,6 @@ MKBXBDeviceIDCellDelegate>
 @property (nonatomic, strong)MKBXBDevicePageModel *dataModel;
 
 @property (nonatomic, assign)BOOL dfuMode;
-
-@property (nonatomic, strong)UITextField *passwordTextField;
-
-@property (nonatomic, strong)UITextField *confirmTextField;
 
 @property (nonatomic, copy)NSString *passwordAsciiStr;
 
@@ -232,120 +228,73 @@ MKBXBDeviceIDCellDelegate>
 }
 
 - (void)turnOffBeacon {
-    NSString *msg = @"Are you sure to turn off the Beacon?Please make sure the Beacon has a button to turn on!";
-    MKAlertController *alertView = [MKAlertController alertControllerWithTitle:@"Warning!"
-                                                                       message:msg
-                                                                preferredStyle:UIAlertControllerStyleAlert];
-    alertView.notificationName = @"mk_bxb_needDismissAlert";
     @weakify(self);
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    MKAlertViewAction *cancelAction = [[MKAlertViewAction alloc] initWithTitle:@"Cancel" handler:^{
+        
     }];
-    [alertView addAction:cancelAction];
-    UIAlertAction *moreAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    
+    MKAlertViewAction *confirmAction = [[MKAlertViewAction alloc] initWithTitle:@"OK" handler:^{
         @strongify(self);
         [self commandPowerOff];
     }];
-    [alertView addAction:moreAction];
-    
-    [self presentViewController:alertView animated:YES completion:nil];
+    NSString *msg = @"Are you sure to turn off the Beacon?Please make sure the Beacon has a button to turn on!";
+    MKAlertView *alertView = [[MKAlertView alloc] init];
+    [alertView addAction:cancelAction];
+    [alertView addAction:confirmAction];
+    [alertView showAlertWithTitle:@"Warning!" message:msg notificationName:@"mk_bxb_needDismissAlert"];
 }
 
 - (void)resetBeacon {
-    NSString *msg = @"Are you sure to reset the Beacon？";
-    MKAlertController *alertView = [MKAlertController alertControllerWithTitle:@"Warning!"
-                                                                       message:msg
-                                                                preferredStyle:UIAlertControllerStyleAlert];
-    alertView.notificationName = @"mk_bxb_needDismissAlert";
     @weakify(self);
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    MKAlertViewAction *cancelAction = [[MKAlertViewAction alloc] initWithTitle:@"Cancel" handler:^{
+        
     }];
-    [alertView addAction:cancelAction];
-    UIAlertAction *moreAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    
+    MKAlertViewAction *confirmAction = [[MKAlertViewAction alloc] initWithTitle:@"OK" handler:^{
         @strongify(self);
         [self commandResetDevice];
     }];
-    [alertView addAction:moreAction];
-    
-    [self presentViewController:alertView animated:YES completion:nil];
+    NSString *msg = @"Are you sure to reset the Beacon？";
+    MKAlertView *alertView = [[MKAlertView alloc] init];
+    [alertView addAction:cancelAction];
+    [alertView addAction:confirmAction];
+    [alertView showAlertWithTitle:@"Warning!" message:msg notificationName:@"mk_bxb_needDismissAlert"];
 }
 
 - (void)modifyPassword {
     @weakify(self);
-    NSString *msg = @"Note: The password should not be exceed 16 characters in length.";
-    MKAlertController *alertView = [MKAlertController alertControllerWithTitle:@"Modify password"
-                                                                       message:msg
-                                                                preferredStyle:UIAlertControllerStyleAlert];
-    alertView.notificationName = @"mk_bxb_needDismissAlert";
-    [alertView addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-        @strongify(self);
-        self.passwordTextField = nil;
-        self.passwordTextField = textField;
-        self.passwordAsciiStr = @"";
-        [self.passwordTextField setPlaceholder:@"Enter new password"];
-        [self.passwordTextField addTarget:self
-                                   action:@selector(passwordTextFieldValueChanged:)
-                         forControlEvents:UIControlEventEditingChanged];
+    MKAlertViewAction *cancelAction = [[MKAlertViewAction alloc] initWithTitle:@"Cancel" handler:^{
     }];
-    [alertView addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-        @strongify(self);
-        self.confirmTextField = nil;
-        self.confirmTextField = textField;
-        self.confirmAsciiStr = @"";
-        [self.confirmTextField setPlaceholder:@"Enter new password again"];
-        [self.confirmTextField addTarget:self
-                                  action:@selector(passwordTextFieldValueChanged:)
-                        forControlEvents:UIControlEventEditingChanged];
-    }];
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
-    [alertView addAction:cancelAction];
-    UIAlertAction *moreAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    
+    MKAlertViewAction *confirmAction = [[MKAlertViewAction alloc] initWithTitle:@"OK" handler:^{
         @strongify(self);
         [self setPasswordToDevice];
     }];
-    [alertView addAction:moreAction];
+    MKAlertViewTextField *passwordField = [[MKAlertViewTextField alloc] initWithTextValue:@""
+                                                                              placeholder:@"Enter new password"
+                                                                            textFieldType:mk_normal
+                                                                                maxLength:16
+                                                                                  handler:^(NSString * _Nonnull text) {
+        @strongify(self);
+        self.passwordAsciiStr = text;
+    }];
     
-    [self presentViewController:alertView animated:YES completion:nil];
-}
-
-- (void)passwordTextFieldValueChanged:(UITextField *)textField{
-    NSString *inputValue = textField.text;
-    if (!ValidStr(inputValue)) {
-        textField.text = @"";
-        if (textField == self.passwordTextField) {
-            self.passwordAsciiStr = @"";
-        }else if (textField == self.confirmTextField) {
-            self.confirmAsciiStr = @"";
-        }
-        return;
-    }
-    NSInteger strLen = inputValue.length;
-    NSInteger dataLen = [inputValue dataUsingEncoding:NSUTF8StringEncoding].length;
+    MKAlertViewTextField *confirmField = [[MKAlertViewTextField alloc] initWithTextValue:@""
+                                                                             placeholder:@"Enter new password again"
+                                                                           textFieldType:mk_normal
+                                                                               maxLength:16
+                                                                                 handler:^(NSString * _Nonnull text) {
+        @strongify(self);
+        self.confirmAsciiStr = text;
+    }];
     
-    NSString *currentStr = @"";
-    if (textField == self.passwordTextField) {
-        currentStr = self.passwordAsciiStr;
-    }else {
-        currentStr = self.confirmAsciiStr;
-    }
-    if (dataLen == strLen) {
-        //当前输入是ascii字符
-        currentStr = inputValue;
-    }
-    if (currentStr.length > 16) {
-        textField.text = [currentStr substringToIndex:16];
-        if (textField == self.passwordTextField) {
-            self.passwordAsciiStr = [currentStr substringToIndex:16];
-        }else {
-            self.confirmAsciiStr = [currentStr substringToIndex:16];
-        }
-    }else {
-        textField.text = currentStr;
-        if (textField == self.passwordTextField) {
-            self.passwordAsciiStr = currentStr;
-        }else {
-            self.confirmAsciiStr = currentStr;
-        }
-    }
+    NSString *msg = @"Note: The password should not be exceed 16 characters in length.";
+    MKAlertView *alertView = [[MKAlertView alloc] init];
+    [alertView addAction:cancelAction];
+    [alertView addAction:confirmAction];
+    [alertView addTextField:passwordField];
+    [alertView addTextField:confirmField];
+    [alertView showAlertWithTitle:@"Modify password" message:msg notificationName:@"mk_bxb_needDismissAlert"];
 }
 
 - (void)startDFU {
@@ -418,8 +367,8 @@ MKBXBDeviceIDCellDelegate>
 }
 
 - (void)setPasswordToDevice {
-    NSString *password = self.passwordTextField.text;
-    NSString *confirmpassword = self.confirmTextField.text;
+    NSString *password = self.passwordAsciiStr;
+    NSString *confirmpassword = self.confirmAsciiStr;
     if (!ValidStr(password) || !ValidStr(confirmpassword) || password.length > 16 || confirmpassword.length > 16) {
         [self.view showCentralToast:@"Length error."];
         return;

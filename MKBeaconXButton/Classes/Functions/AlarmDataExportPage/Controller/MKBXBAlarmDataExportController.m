@@ -18,7 +18,6 @@
 
 #import "MKHudManager.h"
 #import "MKCustomUIAdopter.h"
-#import "MKAlertController.h"
 
 #import "MKBLEBaseLogManager.h"
 
@@ -55,11 +54,28 @@
     [self notifyAlarmEventData:NO];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    //本页面禁止右划退出手势
+    self.navigationController.interactivePopGestureRecognizer.enabled = NO;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self loadSubViews];
     [self addNotifications];
     self.textView.text = [self readDataWithFileName];
+}
+
+#pragma mark - super method
+- (void)leftButtonMethod {
+    [self saveDataToLocal:SafeStr(self.textView.text)];
+    [super leftButtonMethod];
 }
 
 #pragma mark - MFMailComposeViewControllerDelegate
@@ -98,7 +114,7 @@
     NSString *timestamp = [NSString stringWithFormat:@"%@T%@Z",tempList[0],tempList[1]];
     
     NSString *text = [NSString stringWithFormat:@"\n%@\t\t%@",timestamp,state];
-    [self saveDataToLocal:text];
+//    [self saveDataToLocal:text];
     self.textView.text = [text stringByAppendingString:self.textView.text];
 //    [self.textView scrollRangeToVisible:NSMakeRange(self.textView.text.length, 1)];
 }
