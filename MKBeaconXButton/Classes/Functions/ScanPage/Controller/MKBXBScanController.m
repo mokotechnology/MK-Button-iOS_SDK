@@ -473,7 +473,7 @@ MKBXBTabBarControllerDelegate>
 
 #pragma mark - private method
 - (void)showAuthorizationAlert {
-    NSString *promtpMessage = @"This function requires Bluetooth authorization, please enable MKLoRa permission in Settings-Privacy-Bluetooth.";
+    NSString *promtpMessage = @"This function requires Bluetooth authorization, please enable MK Button permission in Settings-Privacy-Bluetooth.";
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@""
                                                                              message:promtpMessage
                                                                       preferredStyle:UIAlertControllerStyleAlert];
