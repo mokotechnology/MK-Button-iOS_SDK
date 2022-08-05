@@ -85,6 +85,7 @@
     if (section == 1) {
         return ([MKBXBConnectManager shared].threeSensor ? self.section1List.count : 0);
     }
+    return 0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
