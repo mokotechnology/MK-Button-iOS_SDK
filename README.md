@@ -36,7 +36,7 @@ At this stage, first call `readNeedPasswordWithPeripheral:sucBlock:failedBlock:`
 
 CocoaPods
 
-SDK-BXP is available through [CocoaPods](https://cocoapods.org).To install it, simply add the following line to your Podfile, and then import <MKBeaconXButton/MKBXBSDK.h>：
+SDK-BXB is available through [CocoaPods](https://cocoapods.org).To install it, simply add the following line to your Podfile, and then import <MKBeaconXButton/MKBXBSDK.h>：
 
 **pod 'MKBeaconXButton/SDK'**
 
@@ -61,7 +61,7 @@ MKBXBCentralManager *manager = [MKBXBCentralManager shared];
 * 1.`manager.delegate = self;` //Set the scan delegate and complete the related delegate methods.
 * 2.you can start the scanning task in this way:`[manager startScan];`    
 * 3.at the sometime, you can stop the scanning task in this way:`[manager stopScan];`
-```
+
 
 #### 2.Connect to device
 
